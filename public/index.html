@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hazel — Hazelink Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/Bot/static/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PASSWORD GATE OVERLAY
+════════════════════════════════════════════════════════════════ -->
+<div id="passwordGate" class="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <div class="gate-logo-ring">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="20" stroke="url(#grad1)" stroke-width="2.5"/>
+          <path d="M14 22l5 5 11-10" stroke="#7C6AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7C6AFF"/>
+              <stop offset="1" stop-color="#3ECFCF"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+    <h1 class="gate-title">Hazel Dashboard</h1>
+    <p class="gate-sub">Enter the access password to continue</p>
+
+    <form id="gateForm" class="gate-form" onsubmit="checkPassword(event)">
+      <div class="gate-input-wrap" id="gateInputWrap">
+        <svg class="gate-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <input
+          type="password"
+          id="gatePassword"
+          class="gate-input"
+          placeholder="Enter password…"
+          autocomplete="current-password"
+          autofocus
+        />
+        <button type="button" class="gate-eye" id="gateEye" onclick="toggleGateEye()" title="Show/hide">
+          <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="gate-error" id="gateError">Incorrect password. Please try again.</div>
+      <button type="submit" class="gate-btn" id="gateBtn">
+        <span id="gateBtnText">Unlock Dashboard</span>
+        <span id="gateBtnSpinner" class="btn-spinner" style="display:none"></span>
+      </button>
+    </form>
+
+    <p class="gate-footer">Hazelink · Hazel Bot v2.0</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN DASHBOARD  (hidden until password unlocked)
+════════════════════════════════════════════════════════════════ -->
+<div id="dashboardApp" class="dashboard-app" style="display:none">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-avatar">
+        <svg width="22" height="22" viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="20" stroke="url(#g2)" stroke-width="2.5"/>
+          <path d="M14 22l5 5 11-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs><linearGradient id="g2" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#7C6AFF"/><stop offset="1" stop-color="#3ECFCF"/>
+          </linearGradient></defs>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Hazelink</span>
+        <span class="brand-tag">Bot Dashboard</span>
+      </div>
+    </div>
+
+    <!-- Server selector (ProBot style) -->
+    <div class="server-selector">
+      <div class="server-selector-inner" id="serverSelectorDisplay">
+        <div class="server-icon-placeholder">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <span class="server-name-text">Select a Server</span>
+        <svg class="server-selector-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">DASHBOARD</div>
+
+      <a href="#" class="nav-link active" data-view="overview">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+
+      <div class="nav-group-label">MODERATION</div>
+
+      <a href="#" class="nav-link" data-view="modlogs">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Mod Logs
+      </a>
+
+      <a href="#" class="nav-link" data-view="events">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Server Events
+      </a>
+
+      <div class="nav-group-label">SERVER</div>
+
+      <a href="#" class="nav-link" data-view="guilds">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Servers
+      </a>
+
+      <div class="nav-spacer"></div>
+
+      <a href="#" class="nav-link nav-link-logout" onclick="lockDashboard(event)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Lock Dashboard
+      </a>
+    </nav>
+
+    <!-- User panel -->
+    <div class="sidebar-user-panel" id="sidebarUserPanel">
+      <img id="userAvatar" class="sup-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="avatar" />
+      <div class="sup-info">
+        <div class="sup-name" id="userName">—</div>
+        <div class="sup-role">Administrator</div>
+      </div>
+      <div class="sup-status-dot"></div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN CONTENT ──────────────────────────────────────── -->
+  <div class="main-wrap">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="topbar-hamburger" id="hamburger" onclick="toggleSidebar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <div class="topbar-breadcrumb">
+        <span class="breadcrumb-bot">Hazel</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="breadcrumb-page" id="topbarPage">Overview</span>
+      </div>
+
+      <div class="topbar-right">
+        <div class="topbar-status-pill" id="botStatusPill">
+          <span class="status-dot"></span>
+          <span class="status-text">Connecting…</span>
+        </div>
+        <div class="topbar-ping" id="topbarPing">— ms</div>
+      </div>
+    </header>
+
+    <!-- ── PAGE: OVERVIEW ─────────────────────────────────── -->
+    <section class="page active" id="view-overview">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Overview</h1>
+          <p class="page-desc">Real-time status and activity summary for Hazel</p>
+        </div>
+        <div class="page-header-actions">
+          <div class="last-updated" id="lastUpdated">Updating…</div>
+        </div>
+      </div>
+
+      <!-- Stat strip -->
+      <div class="stat-strip">
+        <div class="stat-tile" data-key="guilds">
+          <div class="stat-tile-icon icon-blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          </div>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">—</div>
+            <div class="stat-tile-label">Servers</div>
+          </div>
+        </div>
+        <div class="stat-tile" data-key="users">
+          <div class="stat-tile-icon icon-cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">—</div>
+            <div class="stat-tile-label">Users Cached</div>
+          </div>
+        </div>
+        <div class="stat-tile" data-key="bans">
+          <div class="stat-tile-icon icon-red">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </div>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">—</div>
+            <div class="stat-tile-label">Total Bans</div>
+          </div>
+        </div>
+        <div class="stat-tile" data-key="kicks">
+          <div class="stat-tile-icon icon-orange">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 8.5 22 12 19 12"/><path d="M19.07 4.93a10 10 0 1 0 2.93 7.07"/></svg>
+          </div>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">—</div>
+            <div class="stat-tile-label">Total Kicks</div>
+          </div>
+        </div>
+        <div class="stat-tile" data-key="mutes">
+          <div class="stat-tile-icon icon-yellow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/></svg>
+          </div>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">—</div>
+            <div class="stat-tile-label">Total Mutes</div>
+          </div>
+        </div>
+        <div class="stat-tile" data-key="warns">
+          <div class="stat-tile-icon icon-purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">—</div>
+            <div class="stat-tile-label">Total Warns</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent activity + uptime row -->
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Recent Moderation</h2>
+            <button class="panel-action" onclick="switchView('modlogs')">View all</button>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>#</th><th>Action</th><th>Target</th><th>Reason</th><th>When</th></tr></thead>
+              <tbody id="recentBody"><tr><td colspan="5" class="td-empty">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Bot Health</h2>
+          </div>
+          <div class="health-list" id="healthList">
+            <div class="health-row">
+              <span class="health-label">Status</span>
+              <span class="health-val" id="h-status">—</span>
+            </div>
+            <div class="health-row">
+              <span class="health-label">WS Latency</span>
+              <span class="health-val" id="h-ping">—</span>
+            </div>
+            <div class="health-row">
+              <span class="health-label">Uptime</span>
+              <span class="health-val" id="h-uptime">—</span>
+            </div>
+            <div class="health-row">
+              <span class="health-label">Servers</span>
+              <span class="health-val" id="h-guilds">—</span>
+            </div>
+            <div class="health-row">
+              <span class="health-label">Database</span>
+              <span class="health-val" id="h-db">—</span>
+            </div>
+            <div class="health-row">
+              <span class="health-label">Total Actions</span>
+              <span class="health-val" id="h-total">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: MOD LOGS ─────────────────────────────────── -->
+    <section class="page" id="view-modlogs">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Moderation Logs</h1>
+          <p class="page-desc">Complete audit trail of all moderation actions</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header panel-header-filters">
+          <h2 class="panel-title">Actions</h2>
+          <div class="filter-row">
+            <select id="filterAction" class="filter-select">
+              <option value="">All Actions</option>
+              <option value="ban">Ban</option>
+              <option value="kick">Kick</option>
+              <option value="mute">Mute</option>
+              <option value="unmute">Unmute</option>
+              <option value="warn">Warn</option>
+            </select>
+            <input id="filterUser" class="filter-input" type="text" placeholder="Search user ID…" />
+            <button class="btn-primary-sm" onclick="loadModlogs(1)">Search</button>
+            <button class="btn-ghost-sm" onclick="resetModlogFilters()">Reset</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Case</th>
+                <th>Action</th>
+                <th>Target</th>
+                <th>Moderator</th>
+                <th>Reason</th>
+                <th>Duration</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="modBody"><tr><td colspan="7" class="td-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="pagination" id="modPagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: SERVER EVENTS ────────────────────────────── -->
+    <section class="page" id="view-events">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Server Events</h1>
+          <p class="page-desc">Joins, leaves, message deletes, edits, and role changes</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Event Feed</h2>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Guild</th>
+                <th>Target</th>
+                <th>Moderator</th>
+                <th>Reason</th>
+                <th>When</th>
+              </tr>
+            </thead>
+            <tbody id="eventsBody"><tr><td colspan="7" class="td-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="pagination" id="eventsPagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: SERVERS ──────────────────────────────────── -->
+    <section class="page" id="view-guilds">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Servers</h1>
+          <p class="page-desc">All Discord servers Hazel is currently managing</p>
+        </div>
+      </div>
+
+      <div class="guild-grid" id="guildGrid">
+        <div class="td-empty">Loading…</div>
+      </div>
+    </section>
+
+  </div><!-- /.main-wrap -->
+</div><!-- /#dashboardApp -->
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── Password Gate ──────────────────────────────────────────
+const CORRECT_PASSWORD = 'Hz@2026#Wl!xK9mQ';
+const SESSION_KEY      = 'hz_dash_auth';
+let failCount = 0;
+
+function checkPassword(e) {
+  e.preventDefault();
+  const input   = document.getElementById('gatePassword');
+  const error   = document.getElementById('gateError');
+  const btn     = document.getElementById('gateBtn');
+  const spinner = document.getElementById('gateBtnSpinner');
+  const btnText = document.getElementById('gateBtnText');
+
+  btn.disabled   = true;
+  btnText.style.display  = 'none';
+  spinner.style.display  = 'block';
+
+  // Simulate slight delay for UX
+  setTimeout(() => {
+    if (input.value === CORRECT_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      unlockDashboard();
+    } else {
+      failCount++;
+      input.value = '';
+      error.classList.add('visible');
+      document.getElementById('gateInputWrap').classList.add('shake');
+      setTimeout(() => {
+        document.getElementById('gateInputWrap').classList.remove('shake');
+        error.classList.remove('visible');
+      }, 2000);
+
+      // Throttle after 3 fails
+      const waitSec = failCount >= 3 ? Math.min(failCount * 2, 30) : 0;
+      if (waitSec) {
+        let remaining = waitSec;
+        const interval = setInterval(() => {
+          remaining--;
+          btnText.textContent = `Try again in ${remaining}s`;
+          btnText.style.display = 'block';
+          spinner.style.display  = 'none';
+          if (remaining <= 0) {
+            clearInterval(interval);
+            btnText.textContent = 'Unlock Dashboard';
+            btn.disabled = false;
+          }
+        }, 1000);
+      } else {
+        btnText.style.display = 'block';
+        spinner.style.display  = 'none';
+        btn.disabled = false;
+      }
+    }
+  }, 400);
+}
+
+function toggleGateEye() {
+  const input = document.getElementById('gatePassword');
+  const icon  = document.getElementById('eyeIcon');
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  icon.innerHTML = show
+    ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+}
+
+function unlockDashboard() {
+  document.getElementById('passwordGate').classList.add('gate-exit');
+  setTimeout(() => {
+    document.getElementById('passwordGate').style.display = 'none';
+    const app = document.getElementById('dashboardApp');
+    app.style.display = 'flex';
+    // Trigger entrance animation
+    requestAnimationFrame(() => app.classList.add('app-visible'));
+    initDashboard();
+  }, 400);
+}
+
+function lockDashboard(e) {
+  if (e) e.preventDefault();
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('dashboardApp').style.display = 'none';
+  document.getElementById('dashboardApp').classList.remove('app-visible');
+  document.getElementById('passwordGate').style.display = 'flex';
+  document.getElementById('passwordGate').classList.remove('gate-exit');
+  document.getElementById('gatePassword').value = '';
+}
+
+// Check session on load
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  document.getElementById('passwordGate').style.display = 'none';
+  const app = document.getElementById('dashboardApp');
+  app.style.display = 'flex';
+  requestAnimationFrame(() => app.classList.add('app-visible'));
+  document.addEventListener('DOMContentLoaded', initDashboard);
+}
+
+// ── Dashboard Init ─────────────────────────────────────────
+function initDashboard() {
+  loadUser();
+  loadOverview();
+  setInterval(() => { if (currentView === 'overview') loadOverview(); }, 30_000);
+}
+
+// ── State ──────────────────────────────────────────────────
+let currentView = 'overview';
+
+// ── View router ────────────────────────────────────────────
+function switchView(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link[data-view]').forEach(n => n.classList.remove('active'));
+
+  const page = document.getElementById(`view-${name}`);
+  const nav  = document.querySelector(`.nav-link[data-view="${name}"]`);
+  if (page) page.classList.add('active');
+  if (nav)  nav.classList.add('active');
+
+  const titles = { overview: 'Overview', modlogs: 'Mod Logs', events: 'Server Events', guilds: 'Servers' };
+  document.getElementById('topbarPage').textContent = titles[name] ?? name;
+  currentView = name;
+
+  if (name === 'overview') loadOverview();
+  if (name === 'modlogs')  loadModlogs(1);
+  if (name === 'events')   loadEvents(1);
+  if (name === 'guilds')   loadGuilds();
+
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('sidebar-open');
+}
+
+document.querySelectorAll('.nav-link[data-view]').forEach(el => {
+  el.addEventListener('click', e => { e.preventDefault(); switchView(el.dataset.view); });
+});
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('sidebar-open');
+}
+
+// ── API ────────────────────────────────────────────────────
+async function api(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ── Toast ──────────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const c   = document.getElementById('toastContainer');
+  const t   = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span class="toast-icon">${type === 'error' ? '✕' : type === 'success' ? '✓' : 'ℹ'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('toast-show'));
+  setTimeout(() => {
+    t.classList.remove('toast-show');
+    setTimeout(() => t.remove(), 300);
+  }, 3500);
+}
+
+// ── Helpers ────────────────────────────────────────────────
+function relTime(iso) {
+  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (s < 60)               return `${s}s ago`;
+  if (s < 3600)             return `${Math.floor(s/60)}m ago`;
+  if (s < 86400)            return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+
+function fmtUptime(ms) {
+  if (!ms) return '—';
+  const s = Math.floor(ms/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);
+  if (d)  return `${d}d ${h%24}h`;
+  if (h)  return `${h}h ${m%60}m`;
+  if (m)  return `${m}m ${s%60}s`;
+  return `${s}s`;
+}
+
+function esc(s) {
+  return (s ?? '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const ACTION_CFG = {
+  ban:    { label:'Ban',    cls:'badge-red'    },
+  kick:   { label:'Kick',   cls:'badge-orange' },
+  mute:   { label:'Mute',   cls:'badge-amber'  },
+  unmute: { label:'Unmute', cls:'badge-green'  },
+  warn:   { label:'Warn',   cls:'badge-purple' },
+  unban:  { label:'Unban',  cls:'badge-green'  },
+};
+function badge(a) {
+  const c = ACTION_CFG[a] ?? { label: a, cls: 'badge-blue' };
+  return `<span class="badge ${c.cls}">${c.label}</span>`;
+}
+
+// ── Overview ───────────────────────────────────────────────
+async function loadOverview() {
+  try {
+    const [stats, recent] = await Promise.all([
+      api('/Bot/api/stats'),
+      api('/Bot/api/modlogs?limit=7'),
+    ]);
+
+    // Stat tiles
+    const map = {
+      guilds: stats.bot.guilds,
+      users:  stats.bot.users,
+      bans:   stats.moderation.bans,
+      kicks:  stats.moderation.kicks,
+      mutes:  stats.moderation.mutes,
+      warns:  stats.moderation.warns,
+    };
+    document.querySelectorAll('.stat-tile[data-key]').forEach(t => {
+      const v = map[t.dataset.key];
+      t.querySelector('.stat-tile-value').textContent = v ?? '—';
+    });
+
+    // Status pill + topbar ping
+    const online = stats.bot.status === 'online';
+    const pill   = document.getElementById('botStatusPill');
+    pill.className = `topbar-status-pill ${online ? 'pill-online' : 'pill-offline'}`;
+    pill.innerHTML = `<span class="status-dot"></span><span class="status-text">${online ? 'Hazel Online' : 'Offline'}</span>`;
+    document.getElementById('topbarPing').textContent = `${stats.bot.ping ?? '—'}ms`;
+
+    // Health panel
+    document.getElementById('h-status').innerHTML  = `<span class="hv-badge ${online ? 'hv-green' : 'hv-red'}">${online ? 'Online' : 'Offline'}</span>`;
+    document.getElementById('h-ping').textContent  = `${stats.bot.ping ?? '—'}ms`;
+    document.getElementById('h-uptime').textContent= fmtUptime(stats.bot.uptime);
+    document.getElementById('h-guilds').textContent= stats.bot.guilds ?? '—';
+    document.getElementById('h-db').innerHTML      = `<span class="hv-badge ${stats.db.connected ? 'hv-green' : 'hv-red'}">${stats.db.connected ? 'Connected' : 'Disconnected'}</span>`;
+    document.getElementById('h-total').textContent = stats.moderation.total ?? '—';
+
+    // Recent table
+    renderModRows(recent.records, 'recentBody', 5);
+
+    // Last updated
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    showToast('Failed to load overview: ' + err.message, 'error');
+  }
+}
+
+// ── Mod logs ───────────────────────────────────────────────
+let modPage = 1;
+async function loadModlogs(page = 1) {
+  modPage = page;
+  const action = document.getElementById('filterAction').value;
+  const userId = document.getElementById('filterUser').value.trim();
+  let url = `/Bot/api/modlogs?page=${page}&limit=20`;
+  if (action) url += `&action=${encodeURIComponent(action)}`;
+  if (userId) url += `&userId=${encodeURIComponent(userId)}`;
+  try {
+    const data = await api(url);
+    renderModRows(data.records, 'modBody', 7);
+    renderPagination(data.pagination, 'modPagination', loadModlogs);
+  } catch (err) {
+    showToast('Failed to load mod logs: ' + err.message, 'error');
+  }
+}
+
+function resetModlogFilters() {
+  document.getElementById('filterAction').value = '';
+  document.getElementById('filterUser').value   = '';
+  loadModlogs(1);
+}
+
+function renderModRows(records, id, cols) {
+  const tbody = document.getElementById(id);
+  if (!records || !records.length) {
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="td-empty">No records found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = records.map(r => `<tr>
+    <td class="td-case">#${r.caseNumber ?? '—'}</td>
+    <td>${badge(r.action)}</td>
+    <td class="td-user">${esc(r.targetTag)}</td>
+    ${cols >= 7 ? `<td class="td-user">${esc(r.moderatorTag)}</td>` : ''}
+    <td class="td-reason">${esc(r.reason)}</td>
+    ${cols >= 7 ? `<td class="td-dur">${esc(r.duration)}</td>` : ''}
+    <td class="td-time">${relTime(r.createdAt)}</td>
+  </tr>`).join('');
+}
+
+// ── Events ─────────────────────────────────────────────────
+async function loadEvents(page = 1) {
+  try {
+    const data = await api(`/Bot/api/events?page=${page}&limit=20`);
+    const tbody = document.getElementById('eventsBody');
+    if (!data.events.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="td-empty">No events recorded yet.</td></tr>';
+    } else {
+      tbody.innerHTML = data.events.map(e => `<tr>
+        <td class="td-case">#${e.caseNumber ?? '—'}</td>
+        <td>${badge(e.type)}</td>
+        <td class="td-user">${esc(e.guildName)}</td>
+        <td class="td-user">${esc(e.targetTag)}</td>
+        <td class="td-user">${esc(e.moderatorTag)}</td>
+        <td class="td-reason">${esc(e.reason)}</td>
+        <td class="td-time">${relTime(e.createdAt)}</td>
+      </tr>`).join('');
+    }
+    renderPagination(data.pagination, 'eventsPagination', loadEvents);
+  } catch (err) {
+    showToast('Failed to load events: ' + err.message, 'error');
+  }
+}
+
+// ── Guilds ─────────────────────────────────────────────────
+async function loadGuilds() {
+  try {
+    const guilds = await api('/Bot/api/guilds');
+    const grid   = document.getElementById('guildGrid');
+    if (!guilds.length) { grid.innerHTML = '<div class="td-empty">No servers found.</div>'; return; }
+    grid.innerHTML = guilds.map(g => `
+      <div class="guild-card">
+        <img class="guild-card-icon" src="${g.icon ?? 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${esc(g.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+        <div class="guild-card-body">
+          <div class="guild-card-name">${esc(g.name)}</div>
+          <div class="guild-card-meta">${(g.memberCount ?? 0).toLocaleString()} members</div>
+          <div class="guild-card-id">${g.id}</div>
+        </div>
+        <div class="guild-card-arrow">›</div>
+      </div>`).join('');
+  } catch (err) {
+    showToast('Failed to load guilds: ' + err.message, 'error');
+  }
+}
+
+// ── Pagination ─────────────────────────────────────────────
+function renderPagination(meta, id, loader) {
+  const el = document.getElementById(id);
+  if (!meta || meta.pages <= 1) { el.innerHTML = ''; return; }
+  const prevDis = meta.hasPrev ? '' : 'disabled';
+  const nextDis = meta.hasNext ? '' : 'disabled';
+  el.innerHTML = `
+    <button class="pg-btn" ${prevDis} onclick="${loader.name}(${meta.page - 1})">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="pg-label">Page <strong>${meta.page}</strong> of ${meta.pages} &nbsp;·&nbsp; ${meta.total.toLocaleString()} records</span>
+    <button class="pg-btn" ${nextDis} onclick="${loader.name}(${meta.page + 1})">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>`;
+}
+
+// ── User info ──────────────────────────────────────────────
+async function loadUser() {
+  try {
+    const me = await api('/Bot/api/me');
+    document.getElementById('userAvatar').src = me.avatar ?? '';
+    document.getElementById('userName').textContent = me.username ?? 'Admin';
+  } catch (_) {}
+}
+</script>
+</body>
+</html>

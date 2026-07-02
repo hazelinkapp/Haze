@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Panel — Hazel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════════════════════
+   HAZEL ADMIN PANEL — ProBot-inspired
+══════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07071A;--bg2:#0D0D24;--surface:#12122E;--surface2:#191940;--surface3:#1E1E4A;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);--border3:rgba(255,255,255,.22);
+  --brand:#5B6EF5;--brand-d:#4252D4;--brand-l:#7C91FF;--teal:#2DD4BF;
+  --red:#F43F5E;--red-d:rgba(244,63,94,.12);
+  --orange:#F97316;--orange-d:rgba(249,115,22,.12);
+  --amber:#F59E0B;--amber-d:rgba(245,158,11,.12);
+  --green:#10B981;--green-d:rgba(16,185,129,.12);
+  --purple:#A855F7;--purple-d:rgba(168,85,247,.12);
+  --t1:#F0F0FF;--t2:#9898C8;--t3:#4A4A7A;
+  --sb:248px;--tb:58px;
+  --ff:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r:12px;--r2:8px;--r3:6px;
+}
+html{font-size:15px}
+body{font-family:var(--ff);background:var(--bg);color:var(--t1);overflow-x:hidden;min-height:100vh;display:flex}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:28px 28px}
+
+/* ── SIDEBAR ───────────────────────────────────────────── */
+.sb{width:var(--sb);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+  overflow-y:auto;flex-shrink:0;transition:transform .25s;scrollbar-width:none;z-index:100}
+.sb::-webkit-scrollbar{display:none}
+
+.sb-brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px;
+  border-bottom:1px solid var(--border);text-decoration:none;color:inherit}
+.sb-brand-ico{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--brand),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;font-weight:900;color:#fff;box-shadow:0 4px 14px rgba(91,110,245,.35)}
+.sb-brand-name{font-size:.95rem;font-weight:800;letter-spacing:-.02em}
+.sb-brand-sub{font-size:.65rem;color:var(--t3);font-family:var(--fm);margin-top:1px}
+
+.sb-back{display:flex;align-items:center;gap:7px;padding:9px 18px;
+  font-size:.78rem;color:var(--t3);text-decoration:none;
+  border-bottom:1px solid var(--border);transition:color .15s}
+.sb-back:hover{color:var(--t2)}
+
+.sb-guild-selector{padding:12px 12px 8px}
+.sb-guild-label{font-family:var(--fm);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--t3);padding:0 6px;margin-bottom:6px}
+.sb-guild-select{width:100%;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--r2);color:var(--t1);font-family:var(--ff);font-size:.82rem;
+  padding:8px 10px;outline:none;cursor:pointer;transition:border-color .2s}
+.sb-guild-select:focus{border-color:var(--brand)}
+.sb-guild-select option{background:var(--surface2)}
+
+.sb-nav{flex:1;padding:8px 10px;display:flex;flex-direction:column;gap:1px}
+.sb-group{font-family:var(--fm);font-size:.6rem;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--t3);padding:12px 8px 4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;
+  color:var(--t2);font-size:.85rem;font-weight:500;cursor:pointer;
+  border:none;background:none;width:100%;text-align:left;transition:background .12s,color .12s}
+.sb-item:hover{background:var(--surface);color:var(--t1)}
+.sb-item.active{background:rgba(91,110,245,.15);color:var(--brand-l);font-weight:600}
+.sb-item.active .sb-ico{color:var(--brand)}
+.sb-ico{width:17px;flex-shrink:0;color:var(--t3);transition:color .12s}
+.sb-item:hover .sb-ico,.sb-item.active .sb-ico{color:inherit}
+.sb-badge{margin-left:auto;font-size:.65rem;font-family:var(--fm);
+  background:var(--surface3);color:var(--t2);padding:2px 7px;
+  border-radius:999px;border:1px solid var(--border)}
+.sb-badge.new{background:rgba(91,110,245,.2);color:var(--brand-l);border-color:rgba(91,110,245,.3)}
+.sb-div{height:1px;background:var(--border);margin:6px 0}
+.sb-danger{color:var(--red)!important}
+.sb-danger:hover{background:var(--red-d)!important}
+
+.sb-user{padding:12px 14px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:9px;margin-top:auto}
+.sb-user-av{width:30px;height:30px;border-radius:50%;object-fit:cover;
+  flex-shrink:0;border:2px solid var(--border2)}
+.sb-user-name{font-size:.8rem;font-weight:600}
+.sb-user-role{font-size:.67rem;color:var(--t3);margin-top:1px}
+.sb-user-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0}
+
+/* ── TOPBAR ────────────────────────────────────────────── */
+.topbar{height:var(--tb);background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:0 24px;
+  position:sticky;top:0;z-index:80}
+.topbar-ham{display:none;background:none;border:none;color:var(--t2);
+  cursor:pointer;padding:4px;border-radius:6px;transition:background .15s}
+.topbar-ham:hover{background:var(--surface);color:var(--t1)}
+.tb-bc{display:flex;align-items:center;gap:7px;font-size:.875rem;color:var(--t2)}
+.bc-bot{font-weight:700;color:var(--t1)}
+.bc-sep{color:var(--t3)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.tb-status{display:flex;align-items:center;gap:6px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:999px;padding:5px 12px;
+  font-size:.73rem;font-weight:600}
+.tb-status.online{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.25);color:var(--green)}
+.tb-status.offline{background:rgba(244,63,94,.1);border-color:rgba(244,63,94,.25);color:var(--red)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;
+  animation:pulse 2s ease infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.tb-ping{font-family:var(--fm);font-size:.72rem;color:var(--t3);
+  background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:7px}
+.tb-admin-badge{font-family:var(--fm);font-size:.68rem;font-weight:600;
+  background:rgba(91,110,245,.15);color:var(--brand-l);border:1px solid rgba(91,110,245,.3);
+  padding:3px 10px;border-radius:6px}
+
+/* ── MAIN ──────────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.body{padding:26px 26px 60px;flex:1}
+
+.page{display:none}
+.page.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── Page header ───────────────────────────────────────── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;
+  gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.ph-left h1{font-size:1.55rem;font-weight:800;letter-spacing:-.035em}
+.ph-left p{font-size:.875rem;color:var(--t2);margin-top:4px}
+.ph-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* ── Stat strip ────────────────────────────────────────── */
+.stat-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:13px;margin-bottom:22px}
+.stat-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;display:flex;align-items:flex-start;gap:12px;
+  transition:border-color .2s,transform .2s}
+.stat-tile:hover{border-color:var(--border2);transform:translateY(-2px)}
+.si{width:36px;height:36px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center}
+.si-blue{background:rgba(59,130,246,.12);color:#60A5FA}
+.si-teal{background:rgba(45,212,191,.12);color:var(--teal)}
+.si-red{background:rgba(244,63,94,.12);color:#F87171}
+.si-orange{background:rgba(249,115,22,.12);color:#FB923C}
+.si-amber{background:rgba(245,158,11,.12);color:#FBBF24}
+.si-purple{background:rgba(168,85,247,.12);color:#C084FC}
+.si-green{background:rgba(16,185,129,.12);color:#34D399}
+.stat-val{font-size:1.5rem;font-weight:800;letter-spacing:-.04em;line-height:1}
+.stat-lbl{font-size:.67rem;color:var(--t2);margin-top:4px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.07em}
+
+/* ── Panel ─────────────────────────────────────────────── */
+.panel{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.panel-title{font-size:.95rem;font-weight:700}
+.panel-sub{font-size:.78rem;color:var(--t2);margin-top:2px}
+.panel-act{font-size:.78rem;color:var(--brand-l);font-weight:600;
+  background:none;border:none;cursor:pointer;text-decoration:none;transition:color .15s}
+.panel-act:hover{color:var(--t1)}
+
+/* ── Two-col ───────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:18px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+
+/* ── Table ─────────────────────────────────────────────── */
+.tscroll{overflow-x:auto}
+.dt{width:100%;border-collapse:collapse;font-size:.82rem;white-space:nowrap}
+.dt thead th{background:var(--surface2);color:var(--t3);font-weight:600;
+  font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 15px;text-align:left;border-bottom:1px solid var(--border)}
+.dt tbody tr{transition:background .1s}
+.dt tbody tr:hover td{background:rgba(255,255,255,.02)}
+.dt tbody td{padding:10px 15px;border-bottom:1px solid var(--border);
+  color:var(--t2);vertical-align:middle}
+.dt tbody tr:last-child td{border-bottom:none}
+.td-case{color:var(--t3)!important;font-family:var(--fm);font-size:.74rem}
+.td-name{color:var(--t1)!important;font-weight:600;max-width:180px;
+  overflow:hidden;text-overflow:ellipsis}
+.td-sub{color:var(--t2)!important;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.td-mono{font-family:var(--fm);font-size:.74rem;color:var(--t3)!important}
+.td-time{font-family:var(--fm);font-size:.72rem;color:var(--t3)!important;white-space:nowrap}
+.td-empty{text-align:center!important;padding:36px 20px!important;
+  color:var(--t3)!important;font-size:.875rem}
+
+.tfoot{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 15px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.tcount{font-size:.75rem;color:var(--t3);font-family:var(--fm)}
+
+/* ── Badges ────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.69rem;
+  font-weight:700;padding:3px 8px;border-radius:6px;border:1px solid;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;
+  background:currentColor;flex-shrink:0}
+.b-red{color:#F87171;border-color:rgba(244,63,94,.3);background:rgba(244,63,94,.1)}
+.b-orange{color:#FB923C;border-color:rgba(249,115,22,.3);background:rgba(249,115,22,.1)}
+.b-amber{color:#FBBF24;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.1)}
+.b-green{color:#34D399;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.1)}
+.b-purple{color:#C084FC;border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.1)}
+.b-blue{color:#60A5FA;border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.1)}
+.b-teal{color:var(--teal);border-color:rgba(45,212,191,.3);background:rgba(45,212,191,.1)}
+.b-gray{color:var(--t2);border-color:var(--border2);background:var(--surface2)}
+
+/* ── Pagination ────────────────────────────────────────── */
+.pg{display:flex;align-items:center;gap:5px}
+.pg-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--t2);
+  border-radius:7px;width:30px;height:30px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;font-size:.8rem;transition:background .12s,color .12s}
+.pg-btn:hover:not(:disabled){background:var(--surface3);color:var(--t1)}
+.pg-btn:disabled{opacity:.3;cursor:not-allowed}
+.pg-btn.act{background:var(--brand);color:#fff;border-color:var(--brand)}
+.pg-ell{color:var(--t3);font-size:.8rem;padding:0 3px}
+
+/* ── Buttons ───────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--ff);font-size:.82rem;font-weight:600;
+  padding:8px 16px;border-radius:var(--r2);border:none;cursor:pointer;
+  transition:opacity .15s,transform .15s;white-space:nowrap}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 3px 12px rgba(91,110,245,.35)}
+.btn-teal{background:var(--teal);color:#07071A;box-shadow:0 3px 12px rgba(45,212,191,.3)}
+.btn-red{background:var(--red);color:#fff;box-shadow:0 3px 12px rgba(244,63,94,.3)}
+.btn-ghost{background:var(--surface2);color:var(--t2);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--t1)}
+.btn-sm{padding:6px 13px;font-size:.78rem}
+.btn-icon{width:32px;height:32px;padding:0;border-radius:var(--r3)}
+
+/* ── Form elements ─────────────────────────────────────── */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:.78rem;font-weight:600;color:var(--t2)}
+.inp,.sel,.textarea{background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--r2);color:var(--t1);font-family:var(--ff);
+  font-size:.85rem;padding:9px 12px;outline:none;transition:border-color .2s,box-shadow .2s;
+  width:100%}
+.inp:focus,.sel:focus,.textarea:focus{
+  border-color:var(--brand);box-shadow:0 0 0 3px rgba(91,110,245,.12)}
+.inp::placeholder,.textarea::placeholder{color:var(--t3)}
+.sel option{background:var(--surface2)}
+.textarea{resize:vertical;min-height:100px}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-row .inp,.filter-row .sel{width:auto}
+
+/* ── Health list ───────────────────────────────────────── */
+.health-list{padding:4px 0}
+.health-row{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px;border-bottom:1px solid var(--border);font-size:.875rem}
+.health-row:last-child{border-bottom:none}
+.hk{color:var(--t2);font-weight:500}
+.hv{font-weight:600}
+.hv-badge{font-size:.71rem;padding:3px 9px;border-radius:999px;font-weight:600}
+.hv-badge.ok{background:var(--green-d);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.hv-badge.err{background:var(--red-d);color:var(--red);border:1px solid rgba(244,63,94,.3)}
+
+/* ── Toggle switch ─────────────────────────────────────── */
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;border-radius:999px;
+  background:var(--surface3);cursor:pointer;transition:background .2s;
+  border:1px solid var(--border2)}
+.toggle input:checked + .toggle-track{background:var(--brand);border-color:var(--brand)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;
+  border-radius:50%;background:#fff;transition:transform .2s;pointer-events:none}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(18px)}
+
+/* ── Color swatch ──────────────────────────────────────── */
+.color-row{display:flex;align-items:center;gap:8px}
+.color-swatch{width:36px;height:36px;border-radius:8px;border:2px solid var(--border2);cursor:pointer;padding:0}
+.color-hex{flex:1}
+
+/* ── Modal ─────────────────────────────────────────────── */
+.modal-bg{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-bg.open{opacity:1;pointer-events:auto}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:18px;
+  padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  transform:translateY(20px) scale(.97);transition:transform .25s;scrollbar-width:thin}
+.modal-bg.open .modal{transform:none}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:1.1rem;font-weight:800}
+.modal-close{background:var(--surface2);border:1px solid var(--border2);
+  color:var(--t2);border-radius:8px;width:30px;height:30px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:background .15s}
+.modal-close:hover{background:var(--surface3);color:var(--t1)}
+.modal-fields{display:flex;flex-direction:column;gap:14px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── Shortcut card ─────────────────────────────────────── */
+.sc-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);
+  padding:14px 16px;display:flex;align-items:center;gap:12px}
+.sc-symbol{font-size:1.3rem;width:44px;height:44px;border-radius:10px;
+  background:var(--surface3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-info{flex:1;min-width:0}
+.sc-label{font-weight:700;font-size:.9rem}
+.sc-meta{font-size:.75rem;color:var(--t3);font-family:var(--fm);margin-top:2px}
+.sc-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* ── Wealth role tier ──────────────────────────────────── */
+.wr-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);
+  padding:14px 16px;display:flex;align-items:center;gap:12px}
+.wr-threshold{font-size:1.1rem;font-weight:800;letter-spacing:-.03em;color:var(--amber)}
+.wr-info{flex:1}
+.wr-label{font-weight:600;font-size:.875rem}
+.wr-role{font-size:.75rem;color:var(--t3);font-family:var(--fm);margin-top:2px}
+
+/* ── Shop item card ────────────────────────────────────── */
+.shop-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);
+  padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.shop-emoji{font-size:1.5rem;flex-shrink:0;margin-top:2px}
+.shop-info{flex:1}
+.shop-name{font-weight:700;font-size:.9rem}
+.shop-desc{font-size:.78rem;color:var(--t2);margin-top:2px}
+.shop-price{font-size:.82rem;color:var(--amber);font-family:var(--fm);margin-top:4px;font-weight:600}
+.shop-actions{flex-shrink:0;display:flex;gap:6px;margin-top:2px}
+
+/* ── Access user row ───────────────────────────────────── */
+.access-row{display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-bottom:1px solid var(--border)}
+.access-row:last-child{border-bottom:none}
+.access-av{width:36px;height:36px;border-radius:50%;object-fit:cover;
+  flex-shrink:0;border:2px solid var(--border2)}
+.access-info{flex:1;min-width:0}
+.access-name{font-weight:600;font-size:.88rem}
+.access-id{font-size:.7rem;color:var(--t3);font-family:var(--fm);margin-top:2px}
+.access-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap}
+
+/* ── Toast ─────────────────────────────────────────────── */
+.toast-stack{position:fixed;bottom:22px;right:22px;z-index:9000;
+  display:flex;flex-direction:column-reverse;gap:8px}
+.toast{display:flex;align-items:center;gap:10px;background:var(--surface2);
+  border:1px solid var(--border2);border-radius:10px;padding:11px 15px;
+  font-size:.82rem;color:var(--t1);box-shadow:0 8px 30px rgba(0,0,0,.4);
+  transform:translateX(120%);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  opacity:0;max-width:320px}
+.toast.show{transform:translateX(0);opacity:1}
+.toast-ico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
+.toast-error .toast-ico{background:var(--red-d);color:var(--red);border:1px solid rgba(244,63,94,.3)}
+.toast-success .toast-ico{background:var(--green-d);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.toast-info .toast-ico{background:rgba(91,110,245,.12);color:var(--brand-l);border:1px solid rgba(91,110,245,.3)}
+
+/* ── Sidebar overlay (mobile) ──────────────────────────── */
+.sb-overlay{display:none;position:fixed;inset:0;z-index:90;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+
+/* ── Embed preview ─────────────────────────────────────── */
+.embed-preview{border-left:4px solid var(--brand);background:var(--surface2);
+  border-radius:0 8px 8px 0;padding:14px 16px;font-size:.85rem;line-height:1.5}
+.ep-title{font-weight:700;font-size:.95rem;margin-bottom:6px}
+.ep-desc{color:var(--t2);font-size:.83rem}
+.ep-img{width:100%;border-radius:8px;margin-top:10px;max-height:200px;object-fit:cover}
+.ep-footer{font-size:.72rem;color:var(--t3);margin-top:10px}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media(max-width:1024px){.two-col{grid-template-columns:1fr}.three-col{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){
+  .sb{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);z-index:200}
+  .sb.open{transform:none}
+  .sb-overlay{display:block;opacity:0;pointer-events:none;transition:opacity .25s}
+  .sb-overlay.show{opacity:1;pointer-events:auto}
+  .topbar-ham{display:flex}
+  .body{padding:18px 14px 60px}
+  .stat-strip{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  .three-col{grid-template-columns:1fr}
+  .filter-row{flex-direction:column;align-items:stretch}
+}
+</style>
+</head>
+<body>
+
+<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside class="sb" id="sb">
+  <a class="sb-brand" href="/bots">
+    <div class="sb-brand-ico">H</div>
+    <div>
+      <div class="sb-brand-name">Hazelink</div>
+      <div class="sb-brand-sub">Admin Panel</div>
+    </div>
+  </a>
+
+  <a class="sb-back" href="/bots/hazel/dashboard">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    User Dashboard
+  </a>
+
+  <div class="sb-guild-selector">
+    <div class="sb-guild-label">Select Server</div>
+    <select class="sb-guild-select" id="guildSelect" onchange="onGuildChange()">
+      <option value="">Loading servers…</option>
+    </select>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-group">Overview</div>
+    <button class="sb-item active" data-view="overview">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Overview
+    </button>
+
+    <div class="sb-group">Moderation</div>
+    <button class="sb-item" data-view="mod-action">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mod Actions
+    </button>
+    <button class="sb-item" data-view="modlogs">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Mod Logs
+      <span class="sb-badge" id="sbModBadge">0</span>
+    </button>
+
+    <div class="sb-group">Messaging</div>
+    <button class="sb-item" data-view="send-msg">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Send as Hazel
+    </button>
+
+    <div class="sb-group">Economy</div>
+    <button class="sb-item" data-view="econ-config">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Economy Config
+    </button>
+    <button class="sb-item" data-view="shop">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Shop Manager
+    </button>
+    <button class="sb-item" data-view="wealth-roles">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Wealth Roles
+    </button>
+    <button class="sb-item" data-view="wallet-mgr">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Wallet Manager
+    </button>
+    <button class="sb-item" data-view="transactions">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Transactions
+    </button>
+
+    <div class="sb-group">Settings</div>
+    <button class="sb-item" data-view="shortcuts">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Chat Shortcuts
+    </button>
+    <button class="sb-item" data-view="access">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Access Control
+      <span class="sb-badge new" id="sbPendingBadge">0</span>
+    </button>
+
+    <div class="sb-div"></div>
+    <button class="sb-item sb-danger" onclick="window.location='/bots/hazel/logout'">
+      <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </nav>
+
+  <div class="sb-user">
+    <img class="sb-user-av" id="userAv" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="you"/>
+    <div>
+      <div class="sb-user-name" id="userName">Admin</div>
+      <div class="sb-user-role">Administrator</div>
+    </div>
+    <div class="sb-user-dot"></div>
+  </div>
+</aside>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="topbar-ham" onclick="openSb()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="tb-bc">
+      <span class="bc-bot">Hazel</span>
+      <svg class="bc-sep" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      <span id="bcPage">Overview</span>
+    </div>
+    <div class="tb-right">
+      <span class="tb-admin-badge">⚡ Admin</span>
+      <div class="tb-status" id="statusPill"><span class="status-dot"></span><span id="statusTxt">Connecting…</span></div>
+      <div class="tb-ping" id="pingChip">— ms</div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- ════════════ OVERVIEW ════════════ -->
+    <section class="page active" id="view-overview">
+      <div class="ph">
+        <div class="ph-left"><h1>Overview</h1><p>Bot health and activity at a glance</p></div>
+        <div class="ph-right">
+          <div style="font-family:var(--fm);font-size:.72rem;color:var(--t3)" id="lastUpdated">—</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadOverview()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-5.93"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-tile" data-key="guilds"><div class="si si-blue"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div><div class="stat-val">—</div><div class="stat-lbl">Servers</div></div></div>
+        <div class="stat-tile" data-key="users"><div class="si si-teal"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="stat-val">—</div><div class="stat-lbl">Users</div></div></div>
+        <div class="stat-tile" data-key="bans"><div class="si si-red"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div><div><div class="stat-val">—</div><div class="stat-lbl">Bans</div></div></div>
+        <div class="stat-tile" data-key="kicks"><div class="si si-orange"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 8.5 22 12 19 12"/><path d="M19.07 4.93a10 10 0 1 0 2.93 7.07"/></svg></div><div><div class="stat-val">—</div><div class="stat-lbl">Kicks</div></div></div>
+        <div class="stat-tile" data-key="mutes"><div class="si si-amber"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/></svg></div><div><div class="stat-val">—</div><div class="stat-lbl">Mutes</div></div></div>
+        <div class="stat-tile" data-key="warns"><div class="si si-purple"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="stat-val">—</div><div class="stat-lbl">Warns</div></div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Recent Mod Actions</span>
+            <button class="panel-act" onclick="sv('modlogs')">View all →</button>
+          </div>
+          <div class="tscroll">
+            <table class="dt"><thead><tr><th>#</th><th>Action</th><th>Target</th><th>Reason</th><th>When</th></tr></thead>
+            <tbody id="recentBody"><tr><td colspan="5" class="td-empty">Loading…</td></tr></tbody></table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">Bot Health</span></div>
+          <div class="health-list">
+            <div class="health-row"><span class="hk">Status</span><span class="hv" id="hs-status">—</span></div>
+            <div class="health-row"><span class="hk">Latency</span><span class="hv" id="hs-ping">—</span></div>
+            <div class="health-row"><span class="hk">Uptime</span><span class="hv" id="hs-uptime">—</span></div>
+            <div class="health-row"><span class="hk">Servers</span><span class="hv" id="hs-guilds">—</span></div>
+            <div class="health-row"><span class="hk">Database</span><span class="hv" id="hs-db">—</span></div>
+            <div class="health-row"><span class="hk">Economy Users</span><span class="hv" id="hs-econ">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ MOD ACTION ════════════ -->
+    <section class="page" id="view-mod-action">
+      <div class="ph"><div class="ph-left"><h1>Mod Actions</h1><p>Execute moderation commands directly from the dashboard</p></div></div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Quick Action</span></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div class="three-col">
+            <div class="field"><label>Action</label>
+              <select class="sel" id="actionType">
+                <option value="warn">⚠️ Warn</option>
+                <option value="mute">🔇 Mute</option>
+                <option value="unmute">🔊 Unmute</option>
+                <option value="kick">👢 Kick</option>
+                <option value="ban">🔨 Ban</option>
+                <option value="unban">✅ Unban</option>
+              </select>
+            </div>
+            <div class="field"><label>Target User ID</label><input class="inp" id="actionTarget" placeholder="Discord User ID…"/></div>
+            <div class="field"><label>Duration (mute only)</label><input class="inp" id="actionDuration" placeholder="e.g. 10m 2h 1d…"/></div>
+          </div>
+          <div class="field"><label>Reason</label><input class="inp" id="actionReason" placeholder="Reason for this action…"/></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="execModAction()">Execute Action</button>
+            <button class="btn btn-ghost" onclick="clearModForm()">Clear</button>
+          </div>
+          <div id="actionResult" style="display:none;padding:12px 14px;border-radius:8px;font-size:.85rem;font-weight:600"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ MOD LOGS ════════════ -->
+    <section class="page" id="view-modlogs">
+      <div class="ph"><div class="ph-left"><h1>Mod Logs</h1><p>Full audit history of every moderation action</p></div></div>
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Actions</span>
+          <div class="filter-row">
+            <select class="sel" id="flAction" style="width:130px"><option value="">All Actions</option><option value="ban">Ban</option><option value="kick">Kick</option><option value="mute">Mute</option><option value="unmute">Unmute</option><option value="warn">Warn</option></select>
+            <input class="inp" id="flUser" placeholder="User ID…" style="width:160px"/>
+            <button class="btn btn-primary btn-sm" onclick="loadModlogs(1)">Search</button>
+            <button class="btn btn-ghost btn-sm" onclick="resetMod()">Reset</button>
+          </div>
+        </div>
+        <div class="tscroll">
+          <table class="dt"><thead><tr><th>Case</th><th>Action</th><th>Target</th><th>Moderator</th><th>Reason</th><th>Duration</th><th>Date</th><th></th></tr></thead>
+          <tbody id="modBody"><tr><td colspan="8" class="td-empty">Select a server to view mod logs</td></tr></tbody></table>
+        </div>
+        <div class="tfoot"><span class="tcount" id="modCount">0 records</span><div class="pg" id="modPg"></div></div>
+      </div>
+    </section>
+
+    <!-- ════════════ SEND MESSAGE ════════════ -->
+    <section class="page" id="view-send-msg">
+      <div class="ph"><div class="ph-left"><h1>Send as Hazel</h1><p>Send a message or embed to any channel as the bot</p></div></div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">Message Builder</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+            <div class="field"><label>Channel</label>
+              <select class="sel" id="msgChannel"><option value="">Select a channel…</option></select>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" id="msgTypeText" onclick="setMsgType('text')" style="flex:1">Plain Text</button>
+              <button class="btn btn-primary btn-sm" id="msgTypeEmbed" onclick="setMsgType('embed')" style="flex:1">Rich Embed</button>
+            </div>
+            <div class="field"><label>Message (optional with embed)</label>
+              <textarea class="textarea" id="msgContent" placeholder="Message content…" style="min-height:70px" oninput="updatePreview()"></textarea>
+            </div>
+            <div id="embedFields" style="display:none;flex-direction:column;gap:12px">
+              <div class="field"><label>Embed Title</label><input class="inp" id="embedTitle" placeholder="Title…" oninput="updatePreview()"/></div>
+              <div class="field"><label>Description</label><textarea class="textarea" id="embedDesc" placeholder="Description…" oninput="updatePreview()"></textarea></div>
+              <div class="field"><label>Colour</label>
+                <div class="color-row">
+                  <input type="color" class="color-swatch" id="embedColor" value="#5B6EF5" onchange="updatePreview()"/>
+                  <input class="inp color-hex" id="embedColorHex" value="#5B6EF5" oninput="syncColor()" placeholder="#5B6EF5"/>
+                </div>
+              </div>
+              <div class="field"><label>Image URL</label><input class="inp" id="embedImage" placeholder="https://…" oninput="updatePreview()"/></div>
+              <div class="field"><label>Thumbnail URL</label><input class="inp" id="embedThumb" placeholder="https://…"/></div>
+              <div class="field"><label>Footer</label><input class="inp" id="embedFooter" placeholder="Footer text…" oninput="updatePreview()"/></div>
+            </div>
+            <button class="btn btn-teal" onclick="sendMsg()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send Message
+            </button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">Preview</span></div>
+          <div style="padding:16px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff;flex-shrink:0">H</div>
+              <div>
+                <div style="font-weight:700;font-size:.85rem">Hazel</div>
+                <div style="font-size:.7rem;color:var(--t3)">Today at <span id="previewTime">12:00</span></div>
+              </div>
+            </div>
+            <div id="previewContent" style="font-size:.9rem;color:var(--t1);margin-bottom:10px;word-break:break-word"></div>
+            <div id="previewEmbed" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ ECONOMY CONFIG ════════════ -->
+    <section class="page" id="view-econ-config">
+      <div class="ph"><div class="ph-left"><h1>Economy Config</h1><p>Configure the economy system for this server</p></div>
+        <div class="ph-right"><button class="btn btn-primary btn-sm" onclick="saveEconConfig()">Save Changes</button></div>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">General Settings</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+            <div class="field"><label>Coin Name</label><input class="inp" id="cfgCoinName" placeholder="Coins"/></div>
+            <div class="field"><label>Coin Emoji</label><input class="inp" id="cfgCoinEmoji" placeholder="🪙" style="max-width:100px"/></div>
+            <div class="field"><label>Daily Reward Amount</label><input class="inp" type="number" id="cfgDaily" min="0"/></div>
+            <div class="field"><label>Daily Cooldown (hours)</label><input class="inp" type="number" id="cfgDailyCd" min="1"/></div>
+            <div class="field"><label>Work Cooldown (hours)</label><input class="inp" type="number" id="cfgWorkCd" min="1"/></div>
+            <div class="field"><label>Work Min Coins</label><input class="inp" type="number" id="cfgWorkMin" min="0"/></div>
+            <div class="field"><label>Work Max Coins</label><input class="inp" type="number" id="cfgWorkMax" min="0"/></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">Rob Settings</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+            <div class="field"><label>Rob Cooldown (hours)</label><input class="inp" type="number" id="cfgRobCd" min="1"/></div>
+            <div class="field"><label>Success % (target online)</label><input class="inp" type="number" id="cfgRobOnline" min="0" max="100"/></div>
+            <div class="field"><label>Success % (target offline)</label><input class="inp" type="number" id="cfgRobOffline" min="0" max="100"/></div>
+            <div class="field"><label>Steal % of target balance</label><input class="inp" type="number" id="cfgRobSteal" min="0" max="100"/></div>
+            <div class="field"><label>Penalty % if caught</label><input class="inp" type="number" id="cfgRobPenalty" min="0" max="100"/></div>
+            <div style="padding:12px 14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;font-size:.8rem;color:var(--t2)">
+              💡 Penalty coins go to the victim as compensation when the robber is caught.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ SHOP ════════════ -->
+    <section class="page" id="view-shop">
+      <div class="ph">
+        <div class="ph-left"><h1>Shop Manager</h1><p>Manage items available for purchase with coins</p></div>
+        <div class="ph-right"><button class="btn btn-primary btn-sm" onclick="openShopModal()">+ Add Item</button></div>
+      </div>
+      <div id="shopList" style="display:flex;flex-direction:column;gap:10px">
+        <div class="panel" style="padding:40px;text-align:center;color:var(--t3)">Select a server to manage the shop</div>
+      </div>
+    </section>
+
+    <!-- ════════════ WEALTH ROLES ════════════ -->
+    <section class="page" id="view-wealth-roles">
+      <div class="ph">
+        <div class="ph-left"><h1>Wealth Roles</h1><p>Automatically assign roles when users reach a coin threshold</p></div>
+        <div class="ph-right"><button class="btn btn-primary btn-sm" onclick="openWrModal()">+ Add Tier</button></div>
+      </div>
+      <div style="padding:12px 14px;background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);border-radius:10px;font-size:.83rem;color:var(--t2);margin-bottom:18px">
+        🌟 Roles are automatically assigned when a user's balance reaches the threshold, and removed if their balance drops below it.
+      </div>
+      <div id="wrList" style="display:flex;flex-direction:column;gap:10px">
+        <div class="panel" style="padding:40px;text-align:center;color:var(--t3)">Select a server to manage wealth roles</div>
+      </div>
+    </section>
+
+    <!-- ════════════ WALLET MANAGER ════════════ -->
+    <section class="page" id="view-wallet-mgr">
+      <div class="ph"><div class="ph-left"><h1>Wallet Manager</h1><p>Give or take coins from any user's wallet</p></div></div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Adjust Balance</span></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:14px;max-width:480px">
+          <div class="field"><label>User ID</label><input class="inp" id="wlUserId" placeholder="Discord User ID…"/></div>
+          <div class="field"><label>Amount (positive = give, negative = take)</label><input class="inp" type="number" id="wlAmount" placeholder="e.g. 500 or -200"/></div>
+          <div class="field"><label>Note (optional)</label><input class="inp" id="wlNote" placeholder="Reason for adjustment…"/></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="adjustWallet()">Apply</button>
+            <button class="btn btn-ghost" onclick="checkWallet()">Check Balance</button>
+          </div>
+          <div id="wlResult" style="display:none;padding:12px;border-radius:8px;font-size:.85rem"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ TRANSACTIONS ════════════ -->
+    <section class="page" id="view-transactions">
+      <div class="ph"><div class="ph-left"><h1>Transactions</h1><p>Full economy transaction log</p></div></div>
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">History</span>
+          <div class="filter-row">
+            <input class="inp" id="txUser" placeholder="User ID…" style="width:160px"/>
+            <select class="sel" id="txType" style="width:130px"><option value="">All Types</option><option value="daily">Daily</option><option value="work">Work</option><option value="gamble">Gamble</option><option value="rob">Rob</option><option value="give">Give</option><option value="receive">Receive</option><option value="shop">Shop</option><option value="admin">Admin</option><option value="penalty">Penalty</option></select>
+            <button class="btn btn-primary btn-sm" onclick="loadTx(1)">Filter</button>
+          </div>
+        </div>
+        <div class="tscroll">
+          <table class="dt"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Balance</th><th>Note</th><th>Date</th></tr></thead>
+          <tbody id="txBody"><tr><td colspan="6" class="td-empty">Select a server</td></tr></tbody></table>
+        </div>
+        <div class="tfoot"><span class="tcount" id="txCount">0 records</span><div class="pg" id="txPg"></div></div>
+      </div>
+    </section>
+
+    <!-- ════════════ SHORTCUTS ════════════ -->
+    <section class="page" id="view-shortcuts">
+      <div class="ph">
+        <div class="ph-left"><h1>Chat Shortcuts</h1><p>Type a symbol in Discord to trigger a bot action</p></div>
+        <div class="ph-right"><button class="btn btn-primary btn-sm" onclick="openScModal()">+ Add Shortcut</button></div>
+      </div>
+      <div id="scList" style="display:flex;flex-direction:column;gap:10px">
+        <div class="panel" style="padding:40px;text-align:center;color:var(--t3)">Select a server to manage shortcuts</div>
+      </div>
+    </section>
+
+    <!-- ════════════ ACCESS CONTROL ════════════ -->
+    <section class="page" id="view-access">
+      <div class="ph">
+        <div class="ph-left"><h1>Access Control</h1><p>Approve, promote, or ban dashboard users</p></div>
+        <div class="ph-right">
+          <select class="sel" id="accessFilter" onchange="loadAccess(1)" style="width:140px">
+            <option value="">All Users</option>
+            <option value="pending">Pending</option>
+            <option value="admin">Admins</option>
+            <option value="user">Users</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel">
+        <div id="accessList"><div style="padding:40px;text-align:center;color:var(--t3)">Loading…</div></div>
+        <div class="tfoot"><span class="tcount" id="accessCount">0 users</span><div class="pg" id="accessPg"></div></div>
+      </div>
+    </section>
+
+  </div><!-- /.body -->
+</div><!-- /.main -->
+
+<!-- ════════════ MODALS ════════════ -->
+
+<!-- Shop modal -->
+<div class="modal-bg" id="shopModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="shopModalTitle">Add Shop Item</span>
+      <button class="modal-close" onclick="closeModal('shopModal')">✕</button>
+    </div>
+    <div class="modal-fields">
+      <input type="hidden" id="shopItemId"/>
+      <div class="field"><label>Item Name</label><input class="inp" id="shopName" placeholder="e.g. VIP Role"/></div>
+      <div class="field"><label>Description</label><input class="inp" id="shopDesc" placeholder="What do buyers get?"/></div>
+      <div class="field"><label>Price (coins)</label><input class="inp" type="number" id="shopPrice" min="0" placeholder="1000"/></div>
+      <div class="field"><label>Emoji</label><input class="inp" id="shopEmoji" placeholder="🛍️" style="max-width:80px"/></div>
+      <div class="field"><label>Type</label>
+        <select class="sel" id="shopType"><option value="role">Role</option><option value="custom">Custom</option></select>
+      </div>
+      <div class="field" id="shopRoleField"><label>Role ID to grant</label><input class="inp" id="shopRoleId" placeholder="Discord Role ID…"/></div>
+      <div class="field"><label>Stock (-1 = unlimited)</label><input class="inp" type="number" id="shopStock" value="-1"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('shopModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveShopItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Wealth role modal -->
+<div class="modal-bg" id="wrModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="wrModalTitle">Add Wealth Role Tier</span>
+      <button class="modal-close" onclick="closeModal('wrModal')">✕</button>
+    </div>
+    <div class="modal-fields">
+      <input type="hidden" id="wrTierId"/>
+      <div class="field"><label>Tier Label (e.g. "Wealthy")</label><input class="inp" id="wrLabel" placeholder="Wealthy"/></div>
+      <div class="field"><label>Coin Threshold</label><input class="inp" type="number" id="wrThreshold" min="0" placeholder="10000"/></div>
+      <div class="field"><label>Discord Role ID</label><input class="inp" id="wrRoleId" placeholder="Role ID to assign…"/></div>
+      <div class="field"><label>Role Name (display only)</label><input class="inp" id="wrRoleName" placeholder="VIP"/></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <label class="toggle"><input type="checkbox" id="wrEnabled" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        <span style="font-size:.85rem;color:var(--t2)">Enabled</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('wrModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveWrTier()">Save Tier</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shortcut modal -->
+<div class="modal-bg" id="scModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="scModalTitle">Add Chat Shortcut</span>
+      <button class="modal-close" onclick="closeModal('scModal')">✕</button>
+    </div>
+    <div class="modal-fields">
+      <input type="hidden" id="scId"/>
+      <div class="field"><label>Label (internal name)</label><input class="inp" id="scLabel" placeholder="Lock Channel"/></div>
+      <div class="field"><label>Symbol (type this in Discord)</label><input class="inp" id="scSymbol" placeholder="e.g. ق or !lock"/></div>
+      <div class="field"><label>Action</label>
+        <select class="sel" id="scAction">
+          <option value="lock_channel">🔒 Lock Channel</option>
+          <option value="unlock_channel">🔓 Unlock Channel</option>
+          <option value="slow_mode">🐢 Slow Mode</option>
+          <option value="purge">🗑️ Purge Messages</option>
+          <option value="close_ticket">🎫 Close Ticket</option>
+          <option value="send_message">💬 Send Message</option>
+          <option value="add_role">➕ Add Role</option>
+          <option value="remove_role">➖ Remove Role</option>
+        </select>
+      </div>
+      <div class="field" id="scSlowField" style="display:none"><label>Slow mode (seconds)</label><input class="inp" type="number" id="scSlowSec" value="10"/></div>
+      <div class="field" id="scPurgeField" style="display:none"><label>Messages to delete</label><input class="inp" type="number" id="scPurgeCount" value="10" min="1" max="100"/></div>
+      <div class="field" id="scMsgField" style="display:none"><label>Message to send</label><input class="inp" id="scMsgText" placeholder="Message text…"/></div>
+      <div class="field" id="scRoleField" style="display:none"><label>Role ID</label><input class="inp" id="scRoleId" placeholder="Discord Role ID…"/></div>
+      <div class="field"><label>Allowed Role IDs (comma-separated)</label><input class="inp" id="scRoles" placeholder="role1id, role2id…"/></div>
+      <div class="field"><label>Channel IDs (comma-separated, empty = all)</label><input class="inp" id="scChannels" placeholder="Leave empty for all channels…"/></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <label class="toggle"><input type="checkbox" id="scEnabled" checked/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        <span style="font-size:.85rem;color:var(--t2)">Enabled</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('scModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveSc()">Save Shortcut</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+'use strict';
+const API = '';
+let currentGuild = '';
+let msgType = 'text';
+
+/* ── Utils ──────────────────────────────────────────────── */
+const esc = s => (s??'—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const relTime = iso => {
+  if(!iso) return '—';
+  const s = Math.floor((Date.now()-new Date(iso))/1000);
+  if(s<60) return `${s}s ago`; if(s<3600) return `${Math.floor(s/60)}m ago`;
+  if(s<86400) return `${Math.floor(s/3600)}h ago`; return new Date(iso).toLocaleDateString();
+};
+
+const BADGE = {
+  ban:{l:'Ban',c:'b-red'},kick:{l:'Kick',c:'b-orange'},mute:{l:'Mute',c:'b-amber'},
+  unmute:{l:'Unmute',c:'b-green'},warn:{l:'Warn',c:'b-purple'},unban:{l:'Unban',c:'b-green'},
+};
+const badge = a => { const b=BADGE[a]??{l:a,c:'b-gray'}; return `<span class="badge ${b.c}">${b.l}</span>`; };
+
+async function api(path, opts={}) {
+  const res = await fetch(API+path, { headers:{'Content-Type':'application/json'}, ...opts });
+  if(!res.ok) { const e=await res.json().catch(()=>({error:res.statusText})); throw new Error(e.error||res.statusText); }
+  return res.json();
+}
+
+function toast(msg, type='info') {
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  const icons={error:'✕',success:'✓',info:'i'};
+  el.className=`toast toast-${type}`;
+  el.innerHTML=`<div class="toast-ico">${icons[type]??'i'}</div><span>${esc(msg)}</span>`;
+  stack.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),350); },3500);
+}
+
+/* ── View switching ─────────────────────────────────────── */
+const PAGE_TITLES = {
+  overview:'Overview','mod-action':'Mod Actions',modlogs:'Mod Logs',
+  'send-msg':'Send as Hazel','econ-config':'Economy Config',shop:'Shop Manager',
+  'wealth-roles':'Wealth Roles','wallet-mgr':'Wallet Manager',transactions:'Transactions',
+  shortcuts:'Chat Shortcuts',access:'Access Control',
+};
+const LOADERS = {
+  overview:loadOverview, modlogs:()=>loadModlogs(1),
+  'econ-config':loadEconConfig, shop:loadShop, 'wealth-roles':loadWr,
+  transactions:()=>loadTx(1), shortcuts:loadSc, access:()=>loadAccess(1),
+  'send-msg':loadChannels,
+};
+
+function sv(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item[data-view]').forEach(n=>n.classList.remove('active'));
+  document.getElementById(`view-${name}`)?.classList.add('active');
+  document.querySelector(`.sb-item[data-view="${name}"]`)?.classList.add('active');
+  document.getElementById('bcPage').textContent = PAGE_TITLES[name]??name;
+  closeSb();
+  LOADERS[name]?.();
+}
+document.querySelectorAll('.sb-item[data-view]').forEach(el=>el.addEventListener('click',()=>sv(el.dataset.view)));
+
+function openSb(){ document.getElementById('sb').classList.add('open'); document.getElementById('sbOverlay').classList.add('show'); }
+function closeSb(){ document.getElementById('sb').classList.remove('open'); document.getElementById('sbOverlay').classList.remove('show'); }
+
+/* ── Init ───────────────────────────────────────────────── */
+async function init() {
+  try {
+    const me = await api('/bots/hazel/api/me');
+    document.getElementById('userAv').src = me.avatar||'';
+    document.getElementById('userName').textContent = me.username||'Admin';
+  } catch(_) {}
+  await loadGuilds();
+  loadOverview();
+  loadAccess(1);
+  setInterval(()=>{ if(document.querySelector('.page.active#view-overview')) loadOverview(); },30000);
+}
+
+/* ── Guild selector ─────────────────────────────────────── */
+async function loadGuilds() {
+  try {
+    const guilds = await api('/bots/hazel/api/guilds');
+    const sel = document.getElementById('guildSelect');
+    sel.innerHTML = '<option value="">Select a server…</option>' +
+      guilds.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  } catch(err) { toast('Failed to load guilds: '+err.message,'error'); }
+}
+function onGuildChange() {
+  currentGuild = document.getElementById('guildSelect').value;
+  const page = document.querySelector('.page.active')?.id?.replace('view-','');
+  if(page) LOADERS[page]?.();
+}
+
+/* ── Overview ───────────────────────────────────────────── */
+async function loadOverview() {
+  try {
+    const [stats,recent] = await Promise.all([
+      api('/bots/hazel/api/stats'),
+      api('/bots/hazel/api/modlogs?limit=8'+(currentGuild?`&guildId=${currentGuild}`:'')),
+    ]);
+    const map={guilds:stats.bot.guilds,users:stats.bot.users,bans:stats.moderation.bans,
+      kicks:stats.moderation.kicks,mutes:stats.moderation.mutes,warns:stats.moderation.warns};
+    document.querySelectorAll('.stat-tile[data-key]').forEach(t=>{
+      t.querySelector('.stat-val').textContent=map[t.dataset.key]??'—';
+    });
+    document.getElementById('sbModBadge').textContent=stats.moderation.total??0;
+    const online=stats.bot.status==='online';
+    const pill=document.getElementById('statusPill');
+    pill.className=`tb-status ${online?'online':'offline'}`;
+    document.getElementById('statusTxt').textContent=online?'Hazel Online':'Offline';
+    document.getElementById('pingChip').textContent=`${stats.bot.ping??'—'} ms`;
+    document.getElementById('hs-status').innerHTML=`<span class="hv-badge ${online?'ok':'err'}">${online?'Online':'Offline'}</span>`;
+    document.getElementById('hs-ping').textContent=`${stats.bot.ping??'—'}ms`;
+    document.getElementById('hs-uptime').textContent=stats.bot.uptime??'—';
+    document.getElementById('hs-guilds').textContent=stats.bot.guilds??'—';
+    document.getElementById('hs-db').innerHTML=`<span class="hv-badge ${stats.db?.connected?'ok':'err'}">${stats.db?.connected?'Connected':'Disconnected'}</span>`;
+    document.getElementById('hs-econ').textContent=stats.economy?.totalWallets??'—';
+    renderModRows(recent.records,'recentBody',5);
+    document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
+  } catch(err){ toast('Overview error: '+err.message,'error'); }
+}
+
+/* ── Mod logs ───────────────────────────────────────────── */
+async function loadModlogs(page=1) {
+  const action=document.getElementById('flAction').value;
+  const user=document.getElementById('flUser').value.trim();
+  let url=`/bots/hazel/api/modlogs?page=${page}&limit=20`;
+  if(currentGuild) url+=`&guildId=${currentGuild}`;
+  if(action) url+=`&action=${encodeURIComponent(action)}`;
+  if(user) url+=`&userId=${encodeURIComponent(user)}`;
+  try {
+    const data=await api(url);
+    renderModRows(data.records,'modBody',8,true);
+    document.getElementById('modCount').textContent=`${data.pagination.total} records`;
+    renderPg(data.pagination,'modPg',loadModlogs);
+  } catch(err){ toast('Mod logs error: '+err.message,'error'); }
+}
+function resetMod(){ document.getElementById('flAction').value=''; document.getElementById('flUser').value=''; loadModlogs(1); }
+
+function renderModRows(records,id,cols,withDelete=false) {
+  const tb=document.getElementById(id);
+  if(!records?.length){ tb.innerHTML=`<tr><td colspan="${cols}" class="td-empty">No records found.</td></tr>`; return; }
+  tb.innerHTML=records.map(r=>`<tr>
+    <td class="td-case">#${r.caseNumber??'—'}</td>
+    <td>${badge(r.action)}</td>
+    <td class="td-name">${esc(r.targetTag)}</td>
+    ${cols>=8?`<td class="td-sub">${esc(r.moderatorTag)}</td>`:''}
+    <td class="td-sub">${esc(r.reason)}</td>
+    ${cols>=8?`<td class="td-mono">${esc(r.duration)}</td>`:''}
+    <td class="td-time">${relTime(r.createdAt)}</td>
+    ${withDelete?`<td><button class="btn btn-icon btn-ghost btn-sm" onclick="deleteCase('${r._id}')" title="Delete">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+    </button></td>`:''}
+  </tr>`).join('');
+}
+
+async function deleteCase(id) {
+  if(!confirm('Delete this case?')) return;
+  try { await api(`/bots/hazel/api/modlogs/${id}`,{method:'DELETE'}); toast('Case deleted','success'); loadModlogs(1); }
+  catch(err){ toast('Delete failed: '+err.message,'error'); }
+}
+
+/* ── Mod action ─────────────────────────────────────────── */
+async function execModAction() {
+  if(!currentGuild) return toast('Select a server first','error');
+  const action=document.getElementById('actionType').value;
+  const targetId=document.getElementById('actionTarget').value.trim();
+  const reason=document.getElementById('actionReason').value.trim();
+  const duration=document.getElementById('actionDuration').value.trim();
+  if(!targetId) return toast('Enter a target user ID','error');
+  try {
+    const r=await api('/bots/hazel/api/admin/action',{method:'POST',body:JSON.stringify({guildId:currentGuild,action,targetId,reason,duration})});
+    const el=document.getElementById('actionResult');
+    el.style.display='block';
+    el.style.background='rgba(16,185,129,.1)';
+    el.style.border='1px solid rgba(16,185,129,.3)';
+    el.style.color='var(--green)';
+    el.textContent=`✓ ${action.toUpperCase()} executed — Case #${r.caseNumber}`;
+    toast(`${action} executed! Case #${r.caseNumber}`,'success');
+  } catch(err){ toast('Action failed: '+err.message,'error'); }
+}
+function clearModForm(){
+  ['actionTarget','actionReason','actionDuration'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('actionResult').style.display='none';
+}
+
+/* ── Send message ───────────────────────────────────────── */
+async function loadChannels() {
+  if(!currentGuild) return;
+  try {
+    const channels=await api(`/bots/hazel/api/admin/channels/${currentGuild}`);
+    const sel=document.getElementById('msgChannel');
+    sel.innerHTML='<option value="">Select channel…</option>'+
+      channels.map(c=>`<option value="${c.id}">#${esc(c.name)}</option>`).join('');
+  } catch(_) {}
+}
+function setMsgType(t) {
+  msgType=t;
+  document.getElementById('embedFields').style.display=t==='embed'?'flex':'none';
+  document.getElementById('msgTypeText').className=`btn btn-sm ${t==='text'?'btn-primary':'btn-ghost'}`;
+  document.getElementById('msgTypeEmbed').className=`btn btn-sm ${t==='embed'?'btn-primary':'btn-ghost'}`;
+  updatePreview();
+}
+function syncColor() {
+  const hex=document.getElementById('embedColorHex').value;
+  if(/^#[0-9A-Fa-f]{6}$/.test(hex)) document.getElementById('embedColor').value=hex;
+  updatePreview();
+}
+function updatePreview() {
+  const now=new Date();
+  document.getElementById('previewTime').textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('previewContent').textContent=document.getElementById('msgContent').value||'';
+  const ep=document.getElementById('previewEmbed');
+  if(msgType==='embed'){
+    const color=document.getElementById('embedColor').value;
+    const title=document.getElementById('embedTitle').value;
+    const desc=document.getElementById('embedDesc').value;
+    const image=document.getElementById('embedImage').value;
+    const footer=document.getElementById('embedFooter').value;
+    ep.style.display='block';
+    ep.className='embed-preview';
+    ep.style.borderLeftColor=color;
+    ep.innerHTML=
+      (title?`<div class="ep-title">${esc(title)}</div>`:'')+
+      (desc?`<div class="ep-desc">${esc(desc)}</div>`:'')+
+      (image?`<img class="ep-img" src="${esc(image)}" alt="image"/>`:'')+ 
+      (footer?`<div class="ep-footer">${esc(footer)}</div>`:'');
+  } else { ep.style.display='none'; }
+}
+async function sendMsg() {
+  const channelId=document.getElementById('msgChannel').value;
+  if(!channelId) return toast('Select a channel','error');
+  if(!currentGuild) return toast('Select a server','error');
+  const content=document.getElementById('msgContent').value.trim();
+  const embedData=msgType==='embed'?{
+    title:document.getElementById('embedTitle').value,
+    description:document.getElementById('embedDesc').value,
+    color:document.getElementById('embedColor').value,
+    image:document.getElementById('embedImage').value,
+    thumbnail:document.getElementById('embedThumb').value,
+    footer:document.getElementById('embedFooter').value,
+  }:null;
+  if(!content && (!embedData?.title && !embedData?.description)) return toast('Enter a message or embed content','error');
+  try {
+    await api('/bots/hazel/api/admin/send',{method:'POST',body:JSON.stringify({guildId:currentGuild,channelId,type:msgType,content,embed:embedData})});
+    toast('Message sent!','success');
+  } catch(err){ toast('Send failed: '+err.message,'error'); }
+}
+
+/* ── Economy config ─────────────────────────────────────── */
+async function loadEconConfig() {
+  if(!currentGuild) return;
+  try {
+    const c=await api(`/bots/hazel/api/economy/config/${currentGuild}`);
+    document.getElementById('cfgCoinName').value=c.coinName;
+    document.getElementById('cfgCoinEmoji').value=c.coinEmoji;
+    document.getElementById('cfgDaily').value=c.dailyAmount;
+    document.getElementById('cfgDailyCd').value=c.dailyCooldownHrs;
+    document.getElementById('cfgWorkCd').value=c.workCooldownHrs;
+    document.getElementById('cfgWorkMin').value=c.workMinCoins;
+    document.getElementById('cfgWorkMax').value=c.workMaxCoins;
+    document.getElementById('cfgRobCd').value=c.robCooldownHrs;
+    document.getElementById('cfgRobOnline').value=c.robSuccessOnline;
+    document.getElementById('cfgRobOffline').value=c.robSuccessOffline;
+    document.getElementById('cfgRobSteal').value=c.robStealPct;
+    document.getElementById('cfgRobPenalty').value=c.robPenaltyPct;
+  } catch(err){ toast('Config load error: '+err.message,'error'); }
+}
+async function saveEconConfig() {
+  if(!currentGuild) return toast('Select a server','error');
+  try {
+    await api(`/bots/hazel/api/economy/config/${currentGuild}`,{method:'PUT',body:JSON.stringify({
+      coinName:document.getElementById('cfgCoinName').value,
+      coinEmoji:document.getElementById('cfgCoinEmoji').value,
+      dailyAmount:+document.getElementById('cfgDaily').value,
+      dailyCooldownHrs:+document.getElementById('cfgDailyCd').value,
+      workCooldownHrs:+document.getElementById('cfgWorkCd').value,
+      workMinCoins:+document.getElementById('cfgWorkMin').value,
+      workMaxCoins:+document.getElementById('cfgWorkMax').value,
+      robCooldownHrs:+document.getElementById('cfgRobCd').value,
+      robSuccessOnline:+document.getElementById('cfgRobOnline').value,
+      robSuccessOffline:+document.getElementById('cfgRobOffline').value,
+      robStealPct:+document.getElementById('cfgRobSteal').value,
+      robPenaltyPct:+document.getElementById('cfgRobPenalty').value,
+    })});
+    toast('Economy config saved!','success');
+  } catch(err){ toast('Save failed: '+err.message,'error'); }
+}
+
+/* ── Shop ───────────────────────────────────────────────── */
+let shopItems=[];
+async function loadShop() {
+  if(!currentGuild){ document.getElementById('shopList').innerHTML='<div class="panel" style="padding:40px;text-align:center;color:var(--t3)">Select a server</div>'; return; }
+  try {
+    shopItems=await api(`/bots/hazel/api/shop/${currentGuild}`);
+    const el=document.getElementById('shopList');
+    if(!shopItems.length){ el.innerHTML='<div class="panel" style="padding:40px;text-align:center;color:var(--t3)">No shop items yet. Click + Add Item.</div>'; return; }
+    el.innerHTML=shopItems.map(item=>`
+      <div class="shop-card">
+        <div class="shop-emoji">${esc(item.emoji)}</div>
+        <div class="shop-info">
+          <div class="shop-name">${esc(item.name)}</div>
+          <div class="shop-desc">${esc(item.description)}</div>
+          <div class="shop-price">🪙 ${item.price.toLocaleString()} • ${item.stock<0?'Unlimited stock':`Stock: ${item.stock-item.sold}/${item.stock}`}</div>
+        </div>
+        <div class="shop-actions">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editShopItem('${item._id}')" title="Edit">✏️</button>
+          <button class="btn btn-red btn-sm btn-icon" onclick="deleteShopItem('${item._id}')" title="Delete">🗑️</button>
+        </div>
+      </div>`).join('');
+  } catch(err){ toast('Shop load error: '+err.message,'error'); }
+}
+function openShopModal(){ document.getElementById('shopModalTitle').textContent='Add Shop Item'; document.getElementById('shopItemId').value=''; ['shopName','shopDesc','shopRoleId'].forEach(id=>document.getElementById(id).value=''); document.getElementById('shopPrice').value=''; document.getElementById('shopEmoji').value='🛍️'; document.getElementById('shopType').value='role'; document.getElementById('shopStock').value='-1'; openModal('shopModal'); }
+function editShopItem(id){ const item=shopItems.find(i=>i._id===id); if(!item) return; document.getElementById('shopModalTitle').textContent='Edit Shop Item'; document.getElementById('shopItemId').value=id; document.getElementById('shopName').value=item.name; document.getElementById('shopDesc').value=item.description; document.getElementById('shopPrice').value=item.price; document.getElementById('shopEmoji').value=item.emoji; document.getElementById('shopType').value=item.type; document.getElementById('shopRoleId').value=item.roleId||''; document.getElementById('shopStock').value=item.stock; openModal('shopModal'); }
+async function saveShopItem() {
+  const id=document.getElementById('shopItemId').value;
+  const body={name:document.getElementById('shopName').value,description:document.getElementById('shopDesc').value,price:+document.getElementById('shopPrice').value,emoji:document.getElementById('shopEmoji').value,type:document.getElementById('shopType').value,roleId:document.getElementById('shopRoleId').value||null,stock:+document.getElementById('shopStock').value};
+  try {
+    if(id) await api(`/bots/hazel/api/shop/${currentGuild}/${id}`,{method:'PUT',body:JSON.stringify(body)});
+    else await api(`/bots/hazel/api/shop/${currentGuild}`,{method:'POST',body:JSON.stringify(body)});
+    toast('Item saved!','success'); closeModal('shopModal'); loadShop();
+  } catch(err){ toast('Save failed: '+err.message,'error'); }
+}
+async function deleteShopItem(id){ if(!confirm('Delete this item?')) return; try{ await api(`/bots/hazel/api/shop/${currentGuild}/${id}`,{method:'DELETE'}); toast('Deleted','success'); loadShop(); }catch(err){ toast(err.message,'error'); } }
+
+/* ── Wealth roles ───────────────────────────────────────── */
+let wrTiers=[];
+async function loadWr() {
+  if(!currentGuild){ document.getElementById('wrList').innerHTML='<div class="panel" style="padding:40px;text-align:center;color:var(--t3)">Select a server</div>'; return; }
+  try {
+    wrTiers=await api(`/bots/hazel/api/wealth-roles/${currentGuild}`);
+    const el=document.getElementById('wrList');
+    if(!wrTiers.length){ el.innerHTML='<div class="panel" style="padding:40px;text-align:center;color:var(--t3)">No wealth role tiers yet.</div>'; return; }
+    el.innerHTML=wrTiers.map(t=>`
+      <div class="wr-card">
+        <div class="wr-threshold">🪙 ${t.threshold.toLocaleString()}</div>
+        <div class="wr-info">
+          <div class="wr-label">${esc(t.label||'Untitled Tier')}</div>
+          <div class="wr-role">Role ID: ${esc(t.roleId)} ${t.roleName?`(${esc(t.roleName)})`:''}  ${t.enabled?'<span style="color:var(--green)">●</span> Active':'<span style="color:var(--t3)">● Disabled</span>'}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editWr('${t._id}')" title="Edit">✏️</button>
+          <button class="btn btn-red btn-sm btn-icon" onclick="deleteWr('${t._id}')" title="Delete">🗑️</button>
+        </div>
+      </div>`).join('');
+  } catch(err){ toast('Wealth roles error: '+err.message,'error'); }
+}
+function openWrModal(){ document.getElementById('wrModalTitle').textContent='Add Wealth Role Tier'; document.getElementById('wrTierId').value=''; ['wrLabel','wrThreshold','wrRoleId','wrRoleName'].forEach(id=>document.getElementById(id).value=''); document.getElementById('wrEnabled').checked=true; openModal('wrModal'); }
+function editWr(id){ const t=wrTiers.find(x=>x._id===id); if(!t) return; document.getElementById('wrModalTitle').textContent='Edit Wealth Role Tier'; document.getElementById('wrTierId').value=id; document.getElementById('wrLabel').value=t.label||''; document.getElementById('wrThreshold').value=t.threshold; document.getElementById('wrRoleId').value=t.roleId; document.getElementById('wrRoleName').value=t.roleName||''; document.getElementById('wrEnabled').checked=t.enabled; openModal('wrModal'); }
+async function saveWrTier() {
+  const id=document.getElementById('wrTierId').value;
+  const body={label:document.getElementById('wrLabel').value,threshold:+document.getElementById('wrThreshold').value,roleId:document.getElementById('wrRoleId').value,roleName:document.getElementById('wrRoleName').value,enabled:document.getElementById('wrEnabled').checked};
+  try {
+    if(id) await api(`/bots/hazel/api/wealth-roles/${currentGuild}/${id}`,{method:'PUT',body:JSON.stringify(body)});
+    else await api(`/bots/hazel/api/wealth-roles/${currentGuild}`,{method:'POST',body:JSON.stringify(body)});
+    toast('Tier saved!','success'); closeModal('wrModal'); loadWr();
+  } catch(err){ toast('Save failed: '+err.message,'error'); }
+}
+async function deleteWr(id){ if(!confirm('Delete this tier?')) return; try{ await api(`/bots/hazel/api/wealth-roles/${currentGuild}/${id}`,{method:'DELETE'}); toast('Deleted','success'); loadWr(); }catch(err){ toast(err.message,'error'); } }
+
+/* ── Wallet manager ─────────────────────────────────────── */
+async function adjustWallet() {
+  if(!currentGuild) return toast('Select a server','error');
+  const userId=document.getElementById('wlUserId').value.trim();
+  const amount=parseInt(document.getElementById('wlAmount').value);
+  const note=document.getElementById('wlNote').value.trim();
+  if(!userId||isNaN(amount)) return toast('Enter user ID and amount','error');
+  try {
+    const r=await api(`/bots/hazel/api/economy/wallet/${currentGuild}/${userId}/adjust`,{method:'POST',body:JSON.stringify({amount,note})});
+    const el=document.getElementById('wlResult');
+    el.style.display='block'; el.style.background='rgba(16,185,129,.1)'; el.style.border='1px solid rgba(16,185,129,.3)'; el.style.color='var(--green)'; el.style.borderRadius='8px'; el.style.padding='12px';
+    el.textContent=`✓ New balance: ${r.balance.toLocaleString()} coins`;
+    toast('Balance adjusted!','success');
+  } catch(err){ toast('Failed: '+err.message,'error'); }
+}
+async function checkWallet() {
+  if(!currentGuild) return toast('Select a server','error');
+  const userId=document.getElementById('wlUserId').value.trim();
+  if(!userId) return toast('Enter a user ID','error');
+  try {
+    const w=await api(`/bots/hazel/api/economy/leaderboard/${currentGuild}?limit=100`);
+    const wallet=w.wallets.find(x=>x.userId===userId);
+    const el=document.getElementById('wlResult');
+    el.style.display='block'; el.style.background='var(--surface2)'; el.style.border='1px solid var(--border2)'; el.style.color='var(--t1)'; el.style.borderRadius='8px'; el.style.padding='12px';
+    el.textContent=wallet?`Balance: ${wallet.balance.toLocaleString()} coins | Total Earned: ${wallet.totalEarned.toLocaleString()}`:'No wallet found for this user.';
+  } catch(err){ toast('Failed: '+err.message,'error'); }
+}
+
+/* ── Transactions ───────────────────────────────────────── */
+async function loadTx(page=1) {
+  if(!currentGuild) return;
+  const user=document.getElementById('txUser').value.trim();
+  const type=document.getElementById('txType').value;
+  let url=`/bots/hazel/api/economy/transactions/${currentGuild}?page=${page}&limit=20`;
+  if(user) url+=`&userId=${encodeURIComponent(user)}`;
+  if(type) url+=`&type=${encodeURIComponent(type)}`;
+  try {
+    const data=await api(url);
+    const tb=document.getElementById('txBody');
+    if(!data.records?.length){ tb.innerHTML='<tr><td colspan="6" class="td-empty">No transactions found.</td></tr>'; }
+    else { tb.innerHTML=data.records.map(r=>`<tr>
+      <td class="td-mono">${esc(r.userId)}</td>
+      <td>${badge_tx(r.type)}</td>
+      <td style="color:${r.amount>=0?'var(--green)':'var(--red)'};font-weight:600;font-family:var(--fm)">${r.amount>=0?'+':''}${r.amount.toLocaleString()}</td>
+      <td class="td-mono">${r.balance?.toLocaleString()??'—'}</td>
+      <td class="td-sub">${esc(r.note)}</td>
+      <td class="td-time">${relTime(r.createdAt)}</td>
+    </tr>`).join(''); }
+    document.getElementById('txCount').textContent=`${data.pagination.total} records`;
+    renderPg(data.pagination,'txPg',loadTx);
+  } catch(err){ toast('Tx error: '+err.message,'error'); }
+}
+function badge_tx(t){ const map={daily:'b-green',work:'b-teal',gamble:'b-purple',rob:'b-red',give:'b-blue',receive:'b-green',shop:'b-amber',admin:'b-blue',penalty:'b-red'}; return `<span class="badge ${map[t]??'b-gray'}">${t}</span>`; }
+
+/* ── Chat shortcuts ─────────────────────────────────────── */
+let shortcuts=[];
+async function loadSc() {
+  if(!currentGuild){ document.getElementById('scList').innerHTML='<div class="panel" style="padding:40px;text-align:center;color:var(--t3)">Select a server</div>'; return; }
+  try {
+    shortcuts=await api(`/bots/hazel/api/shortcuts/${currentGuild}`);
+    const el=document.getElementById('scList');
+    if(!shortcuts.length){ el.innerHTML='<div class="panel" style="padding:40px;text-align:center;color:var(--t3)">No shortcuts yet.</div>'; return; }
+    el.innerHTML=shortcuts.map(sc=>`
+      <div class="sc-card">
+        <div class="sc-symbol">${esc(sc.symbol)}</div>
+        <div class="sc-info">
+          <div class="sc-label">${esc(sc.label||sc.symbol)}</div>
+          <div class="sc-meta">${esc(sc.action.replace(/_/g,' '))} ${sc.enabled?'<span style="color:var(--green)">● Active</span>':'<span style="color:var(--t3)">● Disabled</span>'}</div>
+        </div>
+        <div class="sc-actions">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editSc('${sc._id}')" title="Edit">✏️</button>
+          <button class="btn btn-red btn-sm btn-icon" onclick="deleteSc('${sc._id}')" title="Delete">🗑️</button>
+        </div>
+      </div>`).join('');
+  } catch(err){ toast('Shortcuts error: '+err.message,'error'); }
+}
+document.getElementById('scAction').addEventListener('change',function(){
+  document.getElementById('scSlowField').style.display=this.value==='slow_mode'?'block':'none';
+  document.getElementById('scPurgeField').style.display=this.value==='purge'?'block':'none';
+  document.getElementById('scMsgField').style.display=this.value==='send_message'?'block':'none';
+  document.getElementById('scRoleField').style.display=['add_role','remove_role'].includes(this.value)?'block':'none';
+});
+function openScModal(){ document.getElementById('scModalTitle').textContent='Add Chat Shortcut'; document.getElementById('scId').value=''; ['scLabel','scSymbol','scRoles','scChannels','scMsgText','scRoleId'].forEach(id=>document.getElementById(id).value=''); document.getElementById('scAction').value='lock_channel'; document.getElementById('scEnabled').checked=true; openModal('scModal'); }
+function editSc(id){ const sc=shortcuts.find(x=>x._id===id); if(!sc) return; document.getElementById('scModalTitle').textContent='Edit Shortcut'; document.getElementById('scId').value=id; document.getElementById('scLabel').value=sc.label||''; document.getElementById('scSymbol').value=sc.symbol; document.getElementById('scAction').value=sc.action; document.getElementById('scRoles').value=sc.allowedRoles.join(', '); document.getElementById('scChannels').value=sc.channels.join(', '); document.getElementById('scEnabled').checked=sc.enabled; openModal('scModal'); }
+async function saveSc() {
+  const id=document.getElementById('scId').value;
+  const action=document.getElementById('scAction').value;
+  const actionData={};
+  if(action==='slow_mode') actionData.seconds=+document.getElementById('scSlowSec').value;
+  if(action==='purge') actionData.count=+document.getElementById('scPurgeCount').value;
+  if(action==='send_message') actionData.text=document.getElementById('scMsgText').value;
+  if(['add_role','remove_role'].includes(action)) actionData.roleId=document.getElementById('scRoleId').value;
+  const body={label:document.getElementById('scLabel').value,symbol:document.getElementById('scSymbol').value,action,actionData,allowedRoles:document.getElementById('scRoles').value.split(',').map(s=>s.trim()).filter(Boolean),channels:document.getElementById('scChannels').value.split(',').map(s=>s.trim()).filter(Boolean),enabled:document.getElementById('scEnabled').checked};
+  try {
+    if(id) await api(`/bots/hazel/api/shortcuts/${currentGuild}/${id}`,{method:'PUT',body:JSON.stringify(body)});
+    else await api(`/bots/hazel/api/shortcuts/${currentGuild}`,{method:'POST',body:JSON.stringify(body)});
+    toast('Shortcut saved!','success'); closeModal('scModal'); loadSc();
+  } catch(err){ toast('Save failed: '+err.message,'error'); }
+}
+async function deleteSc(id){ if(!confirm('Delete this shortcut?')) return; try{ await api(`/bots/hazel/api/shortcuts/${currentGuild}/${id}`,{method:'DELETE'}); toast('Deleted','success'); loadSc(); }catch(err){ toast(err.message,'error'); } }
+
+/* ── Access control ─────────────────────────────────────── */
+let pendingCount=0;
+async function loadAccess(page=1) {
+  const filter=document.getElementById('accessFilter')?.value??'';
+  let url=`/bots/hazel/api/access?page=${page}&limit=20`;
+  if(filter==='pending') url+='&approved=false';
+  else if(filter==='admin') url+='&role=admin';
+  else if(filter==='user') url+='&role=user&approved=true';
+  try {
+    const data=await api(url);
+    const pending=await api('/bots/hazel/api/access?approved=false&limit=1');
+    pendingCount=pending.pagination?.total??0;
+    document.getElementById('sbPendingBadge').textContent=pendingCount;
+    const el=document.getElementById('accessList');
+    if(!data.users?.length){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--t3)">No users found.</div>'; }
+    else { el.innerHTML=data.users.map(u=>`
+      <div class="access-row">
+        <img class="access-av" src="${esc(u.avatar||'')}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" alt="avatar"/>
+        <div class="access-info">
+          <div class="access-name">${esc(u.username)}</div>
+          <div class="access-id">${esc(u.discordId)}</div>
+        </div>
+        <div class="access-actions">
+          <span class="badge ${u.role==='admin'?'b-purple':'b-blue'}">${u.role}</span>
+          ${u.approved?'<span class="badge b-green">Approved</span>':'<span class="badge b-amber">Pending</span>'}
+          ${!u.approved?`<button class="btn btn-primary btn-sm" onclick="approveUser('${u.discordId}')">Approve</button>`:''}
+          ${u.role!=='admin'?`<button class="btn btn-ghost btn-sm" onclick="promoteUser('${u.discordId}')">Make Admin</button>`:''}
+          ${u.banned?`<button class="btn btn-ghost btn-sm" onclick="unbanUser('${u.discordId}')">Unban</button>`:`<button class="btn btn-red btn-sm" onclick="banUser('${u.discordId}')">Ban</button>`}
+        </div>
+      </div>`).join(''); }
+    document.getElementById('accessCount').textContent=`${data.pagination.total} users`;
+    renderPg(data.pagination,'accessPg',loadAccess);
+  } catch(err){ toast('Access load error: '+err.message,'error'); }
+}
+async function approveUser(id){ try{ await api(`/bots/hazel/api/access/${id}`,{method:'PUT',body:JSON.stringify({approved:true})}); toast('User approved!','success'); loadAccess(1); }catch(err){ toast(err.message,'error'); } }
+async function promoteUser(id){ if(!confirm('Make this user an admin?')) return; try{ await api(`/bots/hazel/api/access/${id}`,{method:'PUT',body:JSON.stringify({role:'admin',approved:true})}); toast('User promoted to admin!','success'); loadAccess(1); }catch(err){ toast(err.message,'error'); } }
+async function banUser(id){ if(!confirm('Ban this user from the dashboard?')) return; try{ await api(`/bots/hazel/api/access/${id}`,{method:'PUT',body:JSON.stringify({banned:true})}); toast('User banned','success'); loadAccess(1); }catch(err){ toast(err.message,'error'); } }
+async function unbanUser(id){ try{ await api(`/bots/hazel/api/access/${id}`,{method:'PUT',body:JSON.stringify({banned:false})}); toast('User unbanned','success'); loadAccess(1); }catch(err){ toast(err.message,'error'); } }
+
+/* ── Pagination ─────────────────────────────────────────── */
+function renderPg(meta,id,loader) {
+  const el=document.getElementById(id);
+  if(!meta||meta.pages<=1){ el.innerHTML=''; return; }
+  const {page,pages}=meta;
+  let h=`<button class="pg-btn" ${page<=1?'disabled':''} onclick="${loader.name}(${page-1})">‹</button>`;
+  if(pages<=7){ for(let i=1;i<=pages;i++) h+=`<button class="pg-btn ${i===page?'act':''}" onclick="${loader.name}(${i})">${i}</button>`; }
+  else{ h+=pg_num(1,page,loader); if(page>3) h+='<span class="pg-ell">…</span>'; for(let i=Math.max(2,page-1);i<=Math.min(pages-1,page+1);i++) h+=pg_num(i,page,loader); if(page<pages-2) h+='<span class="pg-ell">…</span>'; h+=pg_num(pages,page,loader); }
+  h+=`<button class="pg-btn" ${page>=pages?'disabled':''} onclick="${loader.name}(${page+1})">›</button>`;
+  el.innerHTML=h;
+}
+function pg_num(n,cur,loader){ return `<button class="pg-btn ${n===cur?'act':''}" onclick="${loader.name}(${n})">${n}</button>`; }
+
+/* ── Modal helpers ──────────────────────────────────────── */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+
+/* ── Initial time for preview ───────────────────────────── */
+updatePreview();
+init();
+</script>
+</body>
+</html>

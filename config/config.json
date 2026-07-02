@@ -1,0 +1,19 @@
+{
+  "prefix": "!",
+  "ownerID": "YOUR_DISCORD_ID",
+  "supportServerID": "YOUR_SERVER_ID",
+  "logChannelID": "YOUR_LOG_CHANNEL_ID",
+  "welcomeChannelID": "YOUR_WELCOME_CHANNEL_ID",
+  "leaveChannelID": "YOUR_LEAVE_CHANNEL_ID",
+  "ticketCategoryID": "YOUR_TICKET_CATEGORY_ID",
+  "modRoleID": "YOUR_MOD_ROLE_ID",
+  "adminRoleID": "YOUR_ADMIN_ROLE_ID",
+  "muteRoleID": "YOUR_MUTE_ROLE_ID",
+  "colors": {
+    "primary": "#5865F2",
+    "success": "#57F287",
+    "warning": "#FEE75C",
+    "danger": "#ED4245",
+    "info": "#EB459E"
+  }
+}
