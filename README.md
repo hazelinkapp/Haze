@@ -347,4 +347,5 @@ hazelink.app/bots/hazel               → Hazel dashboard (Netlify)
 - [ ] Free Metals API key added for gold/silver prices
 #   H a z e  
  #   H a z e  
+ #   H a z e  
  
