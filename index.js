@@ -3,19 +3,35 @@
 //  All economy commands are now slash commands
 // ============================================================
 
-try {
-  require("dotenv").config();
-} catch {
-  // Hosts like Wispbyte inject env vars; dotenv is optional.
-}
-
 const dns = require("dns");
+const fs  = require("fs");
+const path = require("path");
+
+// Load local .env if present. Hosts inject vars themselves.
+try {
+  const envFile = path.join(__dirname, ".env");
+  if (fs.existsSync(envFile)) {
+    for (const raw of fs.readFileSync(envFile, "utf8").split("\n")) {
+      const line = raw.trim();
+      if (!line || line.startsWith("#")) continue;
+      const eq = line.indexOf("=");
+      if (eq < 1) continue;
+      const key = line.slice(0, eq).trim();
+      let val = line.slice(eq + 1).trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      if (process.env[key] === undefined) process.env[key] = val;
+    }
+  }
+} catch { /* ignore missing or unreadable env file */ }
 
 const {
   Client, GatewayIntentBits, Collection, REST, Routes,
 } = require("discord.js");
-const fs       = require("fs");
-const path     = require("path");
 const mongoose = require("mongoose");
 
 const config  = require("./config/config.json");
