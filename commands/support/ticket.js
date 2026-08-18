@@ -9,9 +9,11 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  MessageFlags,
 } = require("discord.js");
 const embeds  = require("../../utils/embeds");
 const logger  = require("../../utils/logger");
+const { isSnowflake } = require("../../utils/permissions");
 
 module.exports = {
   category: "support",
@@ -48,7 +50,7 @@ module.exports = {
             `You already have an open ticket: ${existing}`
           ),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -56,42 +58,46 @@ module.exports = {
     const ticketNumber = Date.now().toString().slice(-5);
 
     // Create the ticket channel
+    const overwrites = [
+      {
+        id: guild.id,
+        deny: [PermissionFlagsBits.ViewChannel],
+      },
+      {
+        id: interaction.user.id,
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.ReadMessageHistory,
+        ],
+      },
+    ];
+    if (isSnowflake(client.config.modRoleID)) {
+      overwrites.push({
+        id: client.config.modRoleID,
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.ReadMessageHistory,
+          PermissionFlagsBits.ManageMessages,
+        ],
+      });
+    }
+
     let ticketChannel;
     try {
       ticketChannel = await guild.channels.create({
         name: `ticket-${interaction.user.username.toLowerCase()}`,
         type: ChannelType.GuildText,
-        parent: categoryId || null,
+        parent: isSnowflake(categoryId) ? categoryId : undefined,
         topic: `Support ticket for ${interaction.user.tag} | ${topic}`,
-        permissionOverwrites: [
-          {
-            id: guild.id,
-            deny: [PermissionFlagsBits.ViewChannel],
-          },
-          {
-            id: interaction.user.id,
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.SendMessages,
-              PermissionFlagsBits.ReadMessageHistory,
-            ],
-          },
-          {
-            id: client.config.modRoleID,
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.SendMessages,
-              PermissionFlagsBits.ReadMessageHistory,
-              PermissionFlagsBits.ManageMessages,
-            ],
-          },
-        ],
+        permissionOverwrites: overwrites,
       });
     } catch (err) {
       logger.error(`[ticket] Failed to create channel: ${err.message}`);
       return interaction.reply({
         embeds: [embeds.error("Error", "Failed to create ticket channel. Check my permissions.")],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -110,7 +116,9 @@ module.exports = {
     });
 
     await ticketChannel.send({
-      content: `${interaction.user} | <@&${client.config.modRoleID}>`,
+      content: isSnowflake(client.config.modRoleID)
+        ? `${interaction.user} | <@&${client.config.modRoleID}>`
+        : `${interaction.user}`,
       embeds: [ticketEmbed],
       components: [row],
     });
@@ -134,7 +142,7 @@ module.exports = {
           `Your support ticket has been opened: ${ticketChannel}`
         ),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
 
     logger.info(`[ticket] #${ticketNumber} opened by ${interaction.user.tag}`);
