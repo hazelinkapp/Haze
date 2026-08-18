@@ -9,8 +9,8 @@ const path = require("path");
 
 // Load local .env if present. Hosts inject vars themselves.
 try {
-  const envFile = path.join(__dirname, ".env");
-  if (fs.existsSync(envFile)) {
+  for (const envFile of [path.join(__dirname, ".env"), path.join(__dirname, "..", ".env")]) {
+    if (!fs.existsSync(envFile)) continue;
     for (const raw of fs.readFileSync(envFile, "utf8").split("\n")) {
       const line = raw.trim();
       if (!line || line.startsWith("#")) continue;
@@ -26,8 +26,14 @@ try {
       }
       if (process.env[key] === undefined) process.env[key] = val;
     }
+    break;
   }
 } catch { /* ignore missing or unreadable env file */ }
+
+process.env.DISCORD_TOKEN =
+  process.env.DISCORD_TOKEN || process.env.BOT_TOKEN || process.env.TOKEN || "";
+process.env.MONGO_URI =
+  process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL || "";
 
 const {
   Client, GatewayIntentBits, Collection, REST, Routes,
