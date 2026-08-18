@@ -7,9 +7,15 @@ const dns = require("dns");
 const fs  = require("fs");
 const path = require("path");
 
-// Load local .env if present. Hosts inject vars themselves.
+// Load local env files if present. Hosts inject vars themselves.
 try {
-  for (const envFile of [path.join(__dirname, ".env"), path.join(__dirname, "..", ".env")]) {
+  const envFiles = [
+    path.join(__dirname, ".env"),
+    path.join(__dirname, "env.txt"),
+    path.join(__dirname, "..", ".env"),
+    path.join(__dirname, "..", "env.txt"),
+  ];
+  for (const envFile of envFiles) {
     if (!fs.existsSync(envFile)) continue;
     for (const raw of fs.readFileSync(envFile, "utf8").split("\n")) {
       const line = raw.trim();
@@ -26,12 +32,15 @@ try {
       }
       if (process.env[key] === undefined) process.env[key] = val;
     }
-    break;
   }
 } catch { /* ignore missing or unreadable env file */ }
 
 process.env.DISCORD_TOKEN =
-  process.env.DISCORD_TOKEN || process.env.BOT_TOKEN || process.env.TOKEN || "";
+  process.env.DISCORD_TOKEN
+  || process.env.BOT_TOKEN
+  || process.env.TOKEN
+  || process.env.DISCORD_BOT_TOKEN
+  || "";
 process.env.MONGO_URI =
   process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL || "";
 
@@ -210,7 +219,20 @@ initInvestments();
 initBusinesses();
 
 // ── Login ─────────────────────────────────────────────────────
-const token = process.env.DISCORD_TOKEN;
-if (!token) { logger.error("DISCORD_TOKEN not set."); process.exit(1); }
+const token =
+  process.env.DISCORD_TOKEN
+  || config.discordToken
+  || config.botToken
+  || "";
+if (!token) {
+  const related = Object.keys(process.env)
+    .filter(k => /token|mongo|discord|bot|uri|secret/i.test(k))
+    .sort()
+    .join(", ");
+  logger.error("DISCORD_TOKEN not set.");
+  logger.error(`Related env names: ${related || "(none)"}`);
+  process.exit(1);
+}
+process.env.DISCORD_TOKEN = token;
 client.login(token);
 module.exports = client;
