@@ -3,7 +3,11 @@
 //  All economy commands are now slash commands
 // ============================================================
 
-require("dotenv").config();
+try {
+  require("dotenv").config();
+} catch {
+  // Hosts like Wispbyte inject env vars; dotenv is optional.
+}
 
 const dns = require("dns");
 
