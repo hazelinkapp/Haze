@@ -3,7 +3,18 @@
 // ============================================================
 
 const { PermissionsBitField, MessageFlags } = require("discord.js");
-const config = require("../config/config.json");
+const fs = require("fs");
+const path = require("path");
+
+const CONFIG_PATH = path.join(__dirname, "../config/config.json");
+
+function loadConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
+  } catch {
+    return {};
+  }
+}
 
 /** Discord snowflake IDs are 17–20 digit strings. Placeholders like YOUR_MOD_ROLE_ID fail channel overwrites. */
 function isSnowflake(id) {
@@ -16,6 +27,7 @@ function isSnowflake(id) {
  * @returns {boolean}
  */
 function isAdmin(member) {
+  const config = loadConfig();
   return (
     member.permissions.has(PermissionsBitField.Flags.Administrator) ||
     member.roles.cache.has(config.adminRoleID)
@@ -28,6 +40,7 @@ function isAdmin(member) {
  * @returns {boolean}
  */
 function isMod(member) {
+  const config = loadConfig();
   return (
     isAdmin(member) ||
     member.roles.cache.has(config.modRoleID) ||
@@ -41,6 +54,7 @@ function isMod(member) {
  * @returns {boolean}
  */
 function isOwner(userId) {
+  const config = loadConfig();
   return userId === config.ownerID;
 }
 

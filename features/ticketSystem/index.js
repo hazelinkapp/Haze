@@ -24,25 +24,31 @@ let ticketCounter = 1000;
  * @param {import('discord.js').Client} client
  */
 async function sendTicketPanel(channel, client) {
+  const panelTitle = client.config.ticketPanelTitle ?? "🎫 Hazelink Support";
+  const panelDesc = client.config.ticketPanelDescription ?? (
+    "Need help? Click the button below to open a private support ticket.\n\n" +
+    "**Before opening a ticket:**\n" +
+    "• Check our FAQ channel for common answers\n" +
+    "• Be ready to describe your issue clearly\n" +
+    "• Abuse of tickets may result in a restriction"
+  );
+
+  const buttonLabel = client.config.ticketPanelButtonLabel ?? "Open Ticket";
+  const buttonEmoji = client.config.ticketPanelButtonEmoji ?? "🎫";
+
   const panelEmbed = new EmbedBuilder()
     .setColor(client.config.colors.primary)
-    .setTitle("🎫 Hazelink Support")
-    .setDescription(
-      "Need help? Click the button below to open a private support ticket.\n\n" +
-      "**Before opening a ticket:**\n" +
-      "• Check our FAQ channel for common answers\n" +
-      "• Be ready to describe your issue clearly\n" +
-      "• Abuse of tickets may result in a restriction"
-    )
+    .setTitle(panelTitle)
+    .setDescription(panelDesc)
     .setFooter({ text: "Hazel • Hazelink Bot" })
     .setTimestamp();
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId("open_ticket")
-      .setLabel("Open Ticket")
+      .setLabel(buttonLabel)
       .setStyle(ButtonStyle.Primary)
-      .setEmoji("🎫")
+      .setEmoji(buttonEmoji)
   );
 
   await channel.send({ embeds: [panelEmbed], components: [row] });

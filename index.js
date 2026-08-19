@@ -58,6 +58,7 @@ const { initEconomy }      = require("./features/economySystem");
 const { initShortcuts }    = require("./features/shortcuts");
 const { initInvestments }  = require("./features/investmentSystem");
 const { initBusinesses }   = require("./features/businessSystem");
+const { initTicketSystem } = require("./features/ticketSystem");
 const { startDashboard }   = require("./dashboard");
 const { registerEconomyCommands, commands: econCommands } = require("./commands/economy");
 
@@ -217,6 +218,7 @@ initEconomy(client);
 initShortcuts(client);
 initInvestments();
 initBusinesses();
+initTicketSystem(client);
 
 // ── Login ─────────────────────────────────────────────────────
 const token =
