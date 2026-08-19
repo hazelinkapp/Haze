@@ -3,15 +3,50 @@
 //  All economy commands are now slash commands
 // ============================================================
 
-require("dotenv").config();
-
 const dns = require("dns");
+const fs  = require("fs");
+const path = require("path");
+
+// Load local env files if present. Hosts inject vars themselves.
+try {
+  const envFiles = [
+    path.join(__dirname, ".env"),
+    path.join(__dirname, "env.txt"),
+    path.join(__dirname, "..", ".env"),
+    path.join(__dirname, "..", "env.txt"),
+  ];
+  for (const envFile of envFiles) {
+    if (!fs.existsSync(envFile)) continue;
+    for (const raw of fs.readFileSync(envFile, "utf8").split("\n")) {
+      const line = raw.trim();
+      if (!line || line.startsWith("#")) continue;
+      const eq = line.indexOf("=");
+      if (eq < 1) continue;
+      const key = line.slice(0, eq).trim();
+      let val = line.slice(eq + 1).trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      if (process.env[key] === undefined) process.env[key] = val;
+    }
+  }
+} catch { /* ignore missing or unreadable env file */ }
+
+process.env.DISCORD_TOKEN =
+  process.env.DISCORD_TOKEN
+  || process.env.BOT_TOKEN
+  || process.env.TOKEN
+  || process.env.DISCORD_BOT_TOKEN
+  || "";
+process.env.MONGO_URI =
+  process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL || "";
 
 const {
   Client, GatewayIntentBits, Collection, REST, Routes,
 } = require("discord.js");
-const fs       = require("fs");
-const path     = require("path");
 const mongoose = require("mongoose");
 
 const config  = require("./config/config.json");
@@ -23,6 +58,7 @@ const { initEconomy }      = require("./features/economySystem");
 const { initShortcuts }    = require("./features/shortcuts");
 const { initInvestments }  = require("./features/investmentSystem");
 const { initBusinesses }   = require("./features/businessSystem");
+const { initTicketSystem } = require("./features/ticketSystem");
 const { startDashboard }   = require("./dashboard");
 const { registerEconomyCommands, commands: econCommands } = require("./commands/economy");
 
@@ -182,9 +218,23 @@ initEconomy(client);
 initShortcuts(client);
 initInvestments();
 initBusinesses();
+initTicketSystem(client);
 
 // ── Login ─────────────────────────────────────────────────────
-const token = process.env.DISCORD_TOKEN;
-if (!token) { logger.error("DISCORD_TOKEN not set."); process.exit(1); }
+const token =
+  process.env.DISCORD_TOKEN
+  || config.discordToken
+  || config.botToken
+  || "";
+if (!token) {
+  const related = Object.keys(process.env)
+    .filter(k => /token|mongo|discord|bot|uri|secret/i.test(k))
+    .sort()
+    .join(", ");
+  logger.error("DISCORD_TOKEN not set.");
+  logger.error(`Related env names: ${related || "(none)"}`);
+  process.exit(1);
+}
+process.env.DISCORD_TOKEN = token;
 client.login(token);
 module.exports = client;

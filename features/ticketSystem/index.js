@@ -10,9 +10,11 @@ const {
   ButtonStyle,
   ChannelType,
   PermissionFlagsBits,
+  MessageFlags,
 } = require("discord.js");
 const logger = require("../../utils/logger");
 const embeds = require("../../utils/embeds");
+const { isSnowflake } = require("../../utils/permissions");
 
 let ticketCounter = 1000;
 
@@ -22,25 +24,31 @@ let ticketCounter = 1000;
  * @param {import('discord.js').Client} client
  */
 async function sendTicketPanel(channel, client) {
+  const panelTitle = client.config.ticketPanelTitle ?? "🎫 Hazelink Support";
+  const panelDesc = client.config.ticketPanelDescription ?? (
+    "Need help? Click the button below to open a private support ticket.\n\n" +
+    "**Before opening a ticket:**\n" +
+    "• Check our FAQ channel for common answers\n" +
+    "• Be ready to describe your issue clearly\n" +
+    "• Abuse of tickets may result in a restriction"
+  );
+
+  const buttonLabel = client.config.ticketPanelButtonLabel ?? "Open Ticket";
+  const buttonEmoji = client.config.ticketPanelButtonEmoji ?? "🎫";
+
   const panelEmbed = new EmbedBuilder()
     .setColor(client.config.colors.primary)
-    .setTitle("🎫 Hazelink Support")
-    .setDescription(
-      "Need help? Click the button below to open a private support ticket.\n\n" +
-      "**Before opening a ticket:**\n" +
-      "• Check our FAQ channel for common answers\n" +
-      "• Be ready to describe your issue clearly\n" +
-      "• Abuse of tickets may result in a restriction"
-    )
+    .setTitle(panelTitle)
+    .setDescription(panelDesc)
     .setFooter({ text: "Hazel • Hazelink Bot" })
     .setTimestamp();
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId("open_ticket")
-      .setLabel("Open Ticket")
+      .setLabel(buttonLabel)
       .setStyle(ButtonStyle.Primary)
-      .setEmoji("🎫")
+      .setEmoji(buttonEmoji)
   );
 
   await channel.send({ embeds: [panelEmbed], components: [row] });
@@ -68,31 +76,38 @@ function initTicketSystem(client) {
       if (existing) {
         return interaction.reply({
           embeds: [embeds.warning("Already Open", `You already have a ticket open: ${existing}`)],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
       ticketCounter++;
       const ticketName = `ticket-${member.user.username.toLowerCase()}`;
 
+      const overwrites = [
+        { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+        { id: member.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
+      ];
+      if (isSnowflake(client.config.modRoleID)) {
+        overwrites.push({
+          id: client.config.modRoleID,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages],
+        });
+      }
+
       let ticketChannel;
       try {
         ticketChannel = await guild.channels.create({
           name: ticketName,
           type: ChannelType.GuildText,
-          parent: client.config.ticketCategoryID || null,
+          parent: isSnowflake(client.config.ticketCategoryID) ? client.config.ticketCategoryID : undefined,
           topic: `Support ticket for ${member.user.tag} | #${ticketCounter}`,
-          permissionOverwrites: [
-            { id: guild.id,     deny:  [PermissionFlagsBits.ViewChannel] },
-            { id: member.id,    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
-            { id: client.config.modRoleID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages] },
-          ],
+          permissionOverwrites: overwrites,
         });
       } catch (err) {
         logger.error(`[TicketSystem] Channel creation failed: ${err.message}`);
         return interaction.reply({
           embeds: [embeds.error("Error", "Failed to create ticket channel. Check my permissions.")],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
@@ -110,14 +125,16 @@ function initTicketSystem(client) {
       );
 
       await ticketChannel.send({
-        content: `${member} | <@&${client.config.modRoleID}>`,
+        content: isSnowflake(client.config.modRoleID)
+          ? `${member} | <@&${client.config.modRoleID}>`
+          : `${member}`,
         embeds: [embeds.ticket(member.user, ticketCounter)],
         components: [closeRow],
       });
 
       await interaction.reply({
         embeds: [embeds.success("Ticket Opened", `Your ticket is ready: ${ticketChannel}`)],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
 
       logger.info(`[TicketSystem] #${ticketCounter} opened by ${member.user.tag}`);
@@ -137,7 +154,7 @@ function initTicketSystem(client) {
       if (!isMod(interaction.member)) {
         return interaction.reply({
           content: "❌ Only moderators can claim tickets.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       await interaction.reply({

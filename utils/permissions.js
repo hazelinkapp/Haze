@@ -2,8 +2,24 @@
 //  utils/permissions.js — Permission helpers for Hazel
 // ============================================================
 
-const { PermissionsBitField } = require("discord.js");
-const config = require("../config/config.json");
+const { PermissionsBitField, MessageFlags } = require("discord.js");
+const fs = require("fs");
+const path = require("path");
+
+const CONFIG_PATH = path.join(__dirname, "../config/config.json");
+
+function loadConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+/** Discord snowflake IDs are 17–20 digit strings. Placeholders like YOUR_MOD_ROLE_ID fail channel overwrites. */
+function isSnowflake(id) {
+  return typeof id === "string" && /^\d{17,20}$/.test(id);
+}
 
 /**
  * Check if a member has Administrator permission or the configured admin role.
@@ -11,6 +27,7 @@ const config = require("../config/config.json");
  * @returns {boolean}
  */
 function isAdmin(member) {
+  const config = loadConfig();
   return (
     member.permissions.has(PermissionsBitField.Flags.Administrator) ||
     member.roles.cache.has(config.adminRoleID)
@@ -23,6 +40,7 @@ function isAdmin(member) {
  * @returns {boolean}
  */
 function isMod(member) {
+  const config = loadConfig();
   return (
     isAdmin(member) ||
     member.roles.cache.has(config.modRoleID) ||
@@ -36,6 +54,7 @@ function isMod(member) {
  * @returns {boolean}
  */
 function isOwner(userId) {
+  const config = loadConfig();
   return userId === config.ownerID;
 }
 
@@ -70,12 +89,13 @@ async function requirePermission(interaction, checkFn, message) {
   if (checkFn(interaction.member)) return true;
   await interaction.reply({
     content: message ?? "❌ You don't have permission to use this command.",
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
   return false;
 }
 
 module.exports = {
+  isSnowflake,
   isAdmin,
   isMod,
   isOwner,
